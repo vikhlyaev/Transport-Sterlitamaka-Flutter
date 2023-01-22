@@ -8,7 +8,7 @@ class FavoritesWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: UserColors.red,
+        backgroundColor: UserColors.blue,
         title: Text('Избранное'),
       ),
       body: Container(),
