@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:transport_sterlitamaka/resources/resources.dart';
-import 'package:transport_sterlitamaka/theme/user_colors.dart';
 
 class StationsWidget extends StatefulWidget {
   const StationsWidget({super.key});
