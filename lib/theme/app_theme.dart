@@ -34,6 +34,11 @@ class AppTheme {
           fontWeight: FontWeight.bold,
           letterSpacing: -0.25,
         ),
+        titleSmall: TextStyle(
+          fontSize: 14,
+          color: Color(0xFFABABAB),
+          letterSpacing: 1.42,
+        ),
         bodySmall: TextStyle(
           color: Colors.black,
           fontSize: 12,
