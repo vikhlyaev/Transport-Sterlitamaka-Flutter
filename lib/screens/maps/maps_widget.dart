@@ -16,7 +16,7 @@ class MapsWidget extends StatelessWidget {
             top: 60,
             right: 16,
             child: ElevatedButton(
-              onPressed: () => print('tap'),
+              onPressed: () => Navigator.of(context).pushNamed('/card'),
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all(Colors.white),
                 foregroundColor: MaterialStateProperty.all(Colors.black),
