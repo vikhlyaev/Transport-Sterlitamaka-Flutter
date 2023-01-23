@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:transport_sterlitamaka/resources/resources.dart';
+import 'package:transport_sterlitamaka/main_screen/widgets/stations/widgets/station_cell_widget.dart';
 
 class StationsWidget extends StatefulWidget {
   const StationsWidget({super.key});
@@ -17,52 +17,26 @@ class _StationsWidgetState extends State<StationsWidget> {
       appBar: AppBar(
         title: const Text('Остановки'),
       ),
-      body: Stack(
-        children: [
-          ListView.separated(
-            scrollDirection: Axis.vertical,
-            padding: const EdgeInsets.only(top: 90),
-            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-            itemCount: 20,
-            itemBuilder: (context, index) {
-              return Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Image(image: AssetImage(Images.iconStation)),
-                    const SizedBox(width: 16),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '23 мая',
-                          style: Theme.of(context).textTheme.titleMedium,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 3),
-                        Text(
-                          'в сторону ул. Гоголя',
-                          style: Theme.of(context).textTheme.bodySmall,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        )
-                      ],
-                    )
-                  ],
-                ),
-              );
-            },
-            separatorBuilder: (context, index) => const Divider(
-              color: Color(0xFFD9D9D9),
-              height: 1,
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Stack(
+          children: [
+            ListView.separated(
+              scrollDirection: Axis.vertical,
+              padding: const EdgeInsets.only(top: 90),
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              itemCount: 20,
+              itemBuilder: (context, index) {
+                return const StationCellWidget();
+              },
+              separatorBuilder: (context, index) => const Divider(
+                color: Color(0xFFD9D9D9),
+                height: 1,
+              ),
             ),
-          ),
-          Container(
-            color: Colors.white,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
+            Container(
+              padding: EdgeInsets.symmetric(vertical: 16),
+              color: Colors.white,
               child: TextField(
                 controller: _searchController,
                 decoration: const InputDecoration(
@@ -71,8 +45,8 @@ class _StationsWidgetState extends State<StationsWidget> {
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
