@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:transport_sterlitamaka/main_screen/main_screen_widget.dart';
+import 'package:transport_sterlitamaka/main_bottom_bar_widget.dart';
 import 'package:transport_sterlitamaka/theme/app_theme.dart';
 
 void main() {
@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
       title: 'Транспорт Стерлитамака',
       theme: AppTheme().light,
       routes: {
-        '/': (context) => const MainScreenWidget(),
+        '/': (context) => const MainBottomBarWidget(),
       },
       initialRoute: '/',
       debugShowCheckedModeBanner: false,

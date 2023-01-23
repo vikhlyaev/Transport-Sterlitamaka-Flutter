@@ -2,19 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
 import 'package:transport_sterlitamaka/theme/user_colors.dart';
-import 'package:transport_sterlitamaka/main_screen/widgets/favorites/favorites_widget.dart';
-import 'package:transport_sterlitamaka/main_screen/widgets/maps/maps_widget.dart';
-import 'package:transport_sterlitamaka/main_screen/widgets/routes/routes_widget.dart';
-import 'package:transport_sterlitamaka/main_screen/widgets/stations/stations_widget.dart';
+import 'package:transport_sterlitamaka/screens/favorites/favorites_widget.dart';
+import 'package:transport_sterlitamaka/screens/maps/maps_widget.dart';
+import 'package:transport_sterlitamaka/screens/routes/routes_widget.dart';
+import 'package:transport_sterlitamaka/screens/stations/stations_widget.dart';
 
-class MainScreenWidget extends StatefulWidget {
-  const MainScreenWidget({super.key});
+class MainBottomBarWidget extends StatefulWidget {
+  const MainBottomBarWidget({super.key});
 
   @override
-  State<MainScreenWidget> createState() => _MainScreenWidgetState();
+  State<MainBottomBarWidget> createState() => _MainBottomBarWidgetState();
 }
 
-class _MainScreenWidgetState extends State<MainScreenWidget> {
+class _MainBottomBarWidgetState extends State<MainBottomBarWidget> {
   var _currentIndex = 0;
 
   onSelectedBar(int index) {

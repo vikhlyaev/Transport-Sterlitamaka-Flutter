@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:transport_sterlitamaka/main_screen/widgets/stations/widgets/station_cell_widget.dart';
+import 'package:transport_sterlitamaka/screens/stations/widgets/station_cell_widget.dart';
 
 class StationsWidget extends StatefulWidget {
   const StationsWidget({super.key});
@@ -23,7 +23,7 @@ class _StationsWidgetState extends State<StationsWidget> {
           children: [
             ListView.separated(
               scrollDirection: Axis.vertical,
-              padding: const EdgeInsets.only(top: 90),
+              padding: const EdgeInsets.only(top: 65),
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               itemCount: 20,
               itemBuilder: (context, index) {
@@ -35,13 +35,19 @@ class _StationsWidgetState extends State<StationsWidget> {
               ),
             ),
             Container(
-              padding: EdgeInsets.symmetric(vertical: 16),
+              padding: const EdgeInsets.only(top: 16, bottom: 8),
               color: Colors.white,
               child: TextField(
                 controller: _searchController,
                 decoration: const InputDecoration(
                   hintText: 'Укажите название остановки',
                   labelText: 'Поиск',
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+                ),
+                style: const TextStyle(
+                  fontWeight: FontWeight.normal,
+                  fontSize: 16,
                 ),
               ),
             ),

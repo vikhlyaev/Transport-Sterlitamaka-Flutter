@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:transport_sterlitamaka/main_screen/widgets/routes/widgets/route_button_widget.dart';
+import 'package:transport_sterlitamaka/screens/routes/widgets/route_button_widget.dart';
 
 class RoutesWidget extends StatelessWidget {
   const RoutesWidget({super.key});
