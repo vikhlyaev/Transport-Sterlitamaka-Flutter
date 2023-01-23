@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:transport_sterlitamaka/main_screen/widgets/routes/widgets/route_button_widget.dart';
-import 'package:transport_sterlitamaka/main_screen/widgets/stations/widgets/station_cell_widget.dart';
+import 'package:transport_sterlitamaka/screens/routes/widgets/route_button_widget.dart';
+import 'package:transport_sterlitamaka/screens/stations/widgets/station_cell_widget.dart';
 import 'package:transport_sterlitamaka/theme/user_colors.dart';
 
 class FavoritesWidget extends StatelessWidget {
@@ -22,13 +22,13 @@ class FavoritesWidget extends StatelessWidget {
             'ОСТАНОВКИ',
             style: Theme.of(context).textTheme.titleSmall,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
           ListView.separated(
             scrollDirection: Axis.vertical,
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             physics: const NeverScrollableScrollPhysics(),
             shrinkWrap: true,
-            itemCount: 5,
+            itemCount: 10,
             itemBuilder: (context, index) {
               return const StationCellWidget();
             },
