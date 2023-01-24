@@ -16,10 +16,10 @@ class MapsWidget extends StatelessWidget {
             top: 60,
             right: 16,
             child: ElevatedButton(
-              onPressed: () => Navigator.of(context).pushNamed('/card'),
+              onPressed: () => Navigator.of(context).pushNamed('/add-card'),
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all(Colors.white),
-                foregroundColor: MaterialStateProperty.all(Colors.black),
+                foregroundColor: MaterialStateProperty.all(UserColors.blue),
                 overlayColor:
                     MaterialStateProperty.all(UserColors.blue.withAlpha(20)),
                 padding: MaterialStateProperty.all(
@@ -48,7 +48,7 @@ class MapsWidget extends StatelessWidget {
               onPressed: () => print('tap'),
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all(Colors.white),
-                foregroundColor: MaterialStateProperty.all(Colors.black),
+                foregroundColor: MaterialStateProperty.all(UserColors.blue),
                 overlayColor:
                     MaterialStateProperty.all(UserColors.blue.withAlpha(20)),
                 minimumSize: MaterialStateProperty.all(
