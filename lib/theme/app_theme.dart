@@ -19,12 +19,36 @@ class AppTheme {
             width: 2.0,
           ),
         ),
+        errorBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: UserColors.red,
+            width: 2.0,
+          ),
+        ),
         labelStyle: TextStyle(
           color: UserColors.blue,
           fontWeight: FontWeight.normal,
         ),
         hintStyle: TextStyle(
           fontWeight: FontWeight.normal,
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.all(UserColors.blue),
+          foregroundColor: MaterialStateProperty.all(Colors.white),
+          overlayColor: MaterialStateProperty.all(Colors.white.withAlpha(20)),
+          padding: MaterialStateProperty.all(
+            const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+          ),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.all(Colors.white),
+          foregroundColor: MaterialStateProperty.all(UserColors.blue),
+          overlayColor:
+              MaterialStateProperty.all(UserColors.blue.withAlpha(20)),
         ),
       ),
       textTheme: const TextTheme(
