@@ -8,25 +8,39 @@ class RouteButtonWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-          border: Border.all(
-            color: UserColors.blue,
-            style: BorderStyle.solid,
-            width: 2.0,
-          ),
-          borderRadius: BorderRadius.circular(4)),
-      height: 60,
-      width: 60,
-      child: const Center(
-        child: Text(
-          '1',
-          style: TextStyle(
-            fontSize: 24,
-            color: UserColors.blue,
-          ),
+    return OutlinedButton(
+      onPressed: () => print('tap route'),
+      child: const Text(
+        '17',
+        style: TextStyle(
+          fontSize: 24,
+          color: UserColors.blue,
         ),
       ),
     );
   }
+
+  // @override
+  // Widget build(BuildContext context) {
+  //   return Container(
+  //     decoration: BoxDecoration(
+  //         border: Border.all(
+  //           color: UserColors.blue,
+  //           style: BorderStyle.solid,
+  //           width: 2.0,
+  //         ),
+  //         borderRadius: BorderRadius.circular(4)),
+  //     height: 60,
+  //     width: 60,
+  //     child: const Center(
+  //       child: Text(
+  //         '1',
+  //         style: TextStyle(
+  //           fontSize: 24,
+  //           color: UserColors.blue,
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 }
