@@ -43,6 +43,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.5"
+  enum_to_string:
+    dependency: transitive
+    description:
+      name: enum_to_string
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.1"
   fake_async:
     dependency: transitive
     description:
@@ -62,11 +69,25 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.1"
+  flutter_plugin_android_lifecycle:
+    dependency: transitive
+    description:
+      name: flutter_plugin_android_lifecycle
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.7"
   flutter_test:
     dependency: "direct dev"
     description: flutter
     source: sdk
     version: "0.0.0"
+  json_annotation:
+    dependency: transitive
+    description:
+      name: json_annotation
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.8.0"
   lints:
     dependency: transitive
     description:
@@ -74,6 +95,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.1"
+  mapbox_maps_flutter:
+    dependency: "direct main"
+    description:
+      name: mapbox_maps_flutter
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.4.0"
   matcher:
     dependency: transitive
     description:
@@ -156,6 +184,27 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.4.12"
+  turf:
+    dependency: transitive
+    description:
+      name: turf
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.7"
+  turf_equality:
+    dependency: transitive
+    description:
+      name: turf_equality
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.2"
+  typed_data:
+    dependency: transitive
+    description:
+      name: typed_data
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.3.1"
   vector_math:
     dependency: transitive
     description:
@@ -165,3 +214,4 @@ packages:
     version: "2.1.2"
 sdks:
   dart: ">=2.18.5 <3.0.0"
+  flutter: ">=2.8.0"
