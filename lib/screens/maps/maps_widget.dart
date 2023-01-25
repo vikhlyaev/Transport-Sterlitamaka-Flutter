@@ -33,6 +33,10 @@ class _MapsWidgetState extends State<MapsWidget> {
   void _setupMap() {
     mapboxMap?.compass.updateSettings(CompassSettings(enabled: false));
     mapboxMap?.scaleBar.updateSettings(ScaleBarSettings(enabled: false));
+    // mapboxMap
+    //     ?.loadStyleURI('mapbox://styles/vikhlyaev/cldbxemtx004t01t7xdltp9h1');
+    mapboxMap
+        ?.loadStyleURI('mapbox://styles/vikhlyaev/cldbxbfza004z01mf0zrs5ohe');
   }
 
   @override
@@ -46,7 +50,7 @@ class _MapsWidgetState extends State<MapsWidget> {
             cameraOptions: CameraOptions(
               center:
                   Point(coordinates: Position(55.953775, 53.632400)).toJson(),
-              zoom: 12.0,
+              zoom: 17.0,
             ),
             styleUri: MapboxStyles.LIGHT,
             onMapCreated: _onMapCreated,
