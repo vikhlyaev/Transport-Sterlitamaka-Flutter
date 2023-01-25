@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:transport_sterlitamaka/secrets.dart';
+import 'package:transport_sterlitamaka/theme/map_style.dart';
 import 'package:transport_sterlitamaka/theme/user_colors.dart';
 import 'package:turf/helpers.dart';
 
@@ -33,10 +34,7 @@ class _MapsWidgetState extends State<MapsWidget> {
   void _setupMap() {
     mapboxMap?.compass.updateSettings(CompassSettings(enabled: false));
     mapboxMap?.scaleBar.updateSettings(ScaleBarSettings(enabled: false));
-    // mapboxMap
-    //     ?.loadStyleURI('mapbox://styles/vikhlyaev/cldbxemtx004t01t7xdltp9h1');
-    mapboxMap
-        ?.loadStyleURI('mapbox://styles/vikhlyaev/cldbxbfza004z01mf0zrs5ohe');
+    mapboxMap?.loadStyleURI(MapStyle.color);
   }
 
   @override
