@@ -185,7 +185,7 @@ packages:
     source: hosted
     version: "0.4.12"
   turf:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: turf
       url: "https://pub.dartlang.org"
