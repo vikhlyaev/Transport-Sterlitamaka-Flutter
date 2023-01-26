@@ -27,8 +27,11 @@ class _MapsWidgetState extends State<MapsWidget> {
   }
 
   void _getUserLocation() {
-    mapboxMap?.location
-        .updateSettings(LocationComponentSettings(enabled: true));
+    mapboxMap?.location.updateSettings(
+      LocationComponentSettings(
+        enabled: true,
+      ),
+    );
   }
 
   void _setupMap() {
@@ -42,7 +45,6 @@ class _MapsWidgetState extends State<MapsWidget> {
     return Scaffold(
       body: Stack(
         children: [
-          // 53.632400, 55.953775
           MapWidget(
             resourceOptions: ResourceOptions(accessToken: Secrets.ACCESS_TOKEN),
             cameraOptions: CameraOptions(
