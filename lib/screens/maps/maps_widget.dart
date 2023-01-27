@@ -17,26 +17,28 @@ class _MapsWidgetState extends State<MapsWidget> {
 
   _onMapCreated(MapboxMap mapboxMap) {
     this.mapboxMap = mapboxMap;
-    _setLocale();
     _setupMap();
     _getUserLocation();
-  }
-
-  void _setLocale() {
-    mapboxMap?.style.localizeLabels('ru', null);
   }
 
   void _getUserLocation() {
     mapboxMap?.location.updateSettings(
       LocationComponentSettings(
         enabled: true,
+        pulsingEnabled: true,
       ),
     );
   }
 
   void _setupMap() {
+    // Установка русской локализации
+    mapboxMap?.style.localizeLabels('ru', null);
+    // Отключение компаса и линии масштаба
     mapboxMap?.compass.updateSettings(CompassSettings(enabled: false));
     mapboxMap?.scaleBar.updateSettings(ScaleBarSettings(enabled: false));
+    // TODO: не работает. После включения карта не скроллится вверх.
+    // mapboxMap?.gestures.updateSettings(GesturesSettings(rotateEnabled: false));
+    // Кастомный стиль
     mapboxMap?.loadStyleURI(MapStyle.color);
   }
 
@@ -52,14 +54,13 @@ class _MapsWidgetState extends State<MapsWidget> {
                   Point(coordinates: Position(55.953775, 53.632400)).toJson(),
               zoom: 17.0,
             ),
-            styleUri: MapboxStyles.LIGHT,
             onMapCreated: _onMapCreated,
           ),
           Positioned(
             top: 60,
             right: 16,
             child: ElevatedButton(
-              onPressed: () => Navigator.of(context).pushNamed('/add-card'),
+              onPressed: () => Navigator.of(context).pushNamed('/card'),
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all(Colors.white),
                 foregroundColor: MaterialStateProperty.all(UserColors.blue),
