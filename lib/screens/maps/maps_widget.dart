@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:transport_sterlitamaka/secrets.dart';
 import 'package:transport_sterlitamaka/theme/map_style.dart';
 import 'package:transport_sterlitamaka/theme/user_colors.dart';
-import 'package:turf/helpers.dart';
+import 'package:turf/helpers.dart' as turf;
 
 class MapsWidget extends StatefulWidget {
   const MapsWidget({super.key});
@@ -14,20 +15,50 @@ class MapsWidget extends StatefulWidget {
 
 class _MapsWidgetState extends State<MapsWidget> {
   MapboxMap? mapboxMap;
+  Position? currentPosition;
+
+  @override
+  void initState() {
+    super.initState();
+    _determinePosition();
+  }
+
+  // проверка доступности локации
+  void _determinePosition() async {
+    // проверка службы геолокации
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      print('Location services are disabled.');
+      return;
+    }
+    // проверка разрешений
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        print('Location permissions are denied.');
+        return;
+      }
+    }
+    // открытие настроек для включения геолокации
+    if (permission == LocationPermission.deniedForever) {
+      print(
+          'Location permissions are permanently denied, we cannot request permissions.');
+      await Geolocator.openLocationSettings();
+      return;
+    }
+    // запрос текущей позиции
+    Position position = await Geolocator.getCurrentPosition();
+    print(position);
+    setState(() {
+      currentPosition = position;
+    });
+  }
 
   _onMapCreated(MapboxMap mapboxMap) {
     this.mapboxMap = mapboxMap;
     _setupMap();
-    _getUserLocation();
-  }
-
-  void _getUserLocation() {
-    mapboxMap?.location.updateSettings(
-      LocationComponentSettings(
-        enabled: true,
-        pulsingEnabled: true,
-      ),
-    );
+    _setUserLocation();
   }
 
   void _setupMap() {
@@ -36,10 +67,25 @@ class _MapsWidgetState extends State<MapsWidget> {
     // Отключение компаса и линии масштаба
     mapboxMap?.compass.updateSettings(CompassSettings(enabled: false));
     mapboxMap?.scaleBar.updateSettings(ScaleBarSettings(enabled: false));
-    // TODO: не работает. После включения карта не скроллится вверх.
-    // mapboxMap?.gestures.updateSettings(GesturesSettings(rotateEnabled: false));
     // Кастомный стиль
     mapboxMap?.loadStyleURI(MapStyle.color);
+    // Включение маркера пользовательской позиции
+    mapboxMap?.location.updateSettings(
+      LocationComponentSettings(enabled: true),
+    );
+  }
+
+  void _setUserLocation() {
+    if (currentPosition != null) {
+      mapboxMap?.setCamera(CameraOptions(
+        center: turf.Point(
+          coordinates: turf.Position(
+            currentPosition!.longitude,
+            currentPosition!.latitude,
+          ),
+        ).toJson(),
+      ));
+    }
   }
 
   @override
@@ -49,11 +95,7 @@ class _MapsWidgetState extends State<MapsWidget> {
         children: [
           MapWidget(
             resourceOptions: ResourceOptions(accessToken: Secrets.ACCESS_TOKEN),
-            cameraOptions: CameraOptions(
-              center:
-                  Point(coordinates: Position(55.953775, 53.632400)).toJson(),
-              zoom: 17.0,
-            ),
+            cameraOptions: CameraOptions(zoom: 17.0),
             onMapCreated: _onMapCreated,
           ),
           Positioned(
