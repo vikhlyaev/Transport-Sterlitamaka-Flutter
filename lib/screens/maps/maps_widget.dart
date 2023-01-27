@@ -69,13 +69,13 @@ class _MapsWidgetState extends State<MapsWidget> {
     mapboxMap?.scaleBar.updateSettings(ScaleBarSettings(enabled: false));
     // Кастомный стиль
     mapboxMap?.loadStyleURI(MapStyle.color);
+  }
+
+  void _setUserLocation() {
     // Включение маркера пользовательской позиции
     mapboxMap?.location.updateSettings(
       LocationComponentSettings(enabled: true),
     );
-  }
-
-  void _setUserLocation() {
     if (currentPosition != null) {
       mapboxMap?.setCamera(CameraOptions(
         center: turf.Point(
