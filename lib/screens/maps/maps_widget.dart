@@ -80,19 +80,25 @@ class _MapsWidgetState extends State<MapsWidget> {
       final Uint8List list =
           bytes.buffer.asUint8List(); // Парсим картинку в байты
 
-      var stationMarkers = <PointAnnotationOptions>[]; // Массив маркеров
+      var stationMarkers = <StationAnnotationOptions>[]; // Массив маркеров
 
       for (final station in stations) {
         // Пробегаемся по массиву остановок и каждую рисуем на ее коордах
-        stationMarkers.add(PointAnnotationOptions(
-          geometry: turf.Point(
-                  coordinates:
-                      turf.Position(station.longitude, station.latitude))
-              .toJson(),
-          image: list,
-        ));
+        stationMarkers.add(
+          StationAnnotationOptions(
+              id: station.id,
+              name: station.name,
+              geometry: turf.Point(
+                      coordinates:
+                          turf.Position(station.longitude, station.latitude))
+                  .toJson(),
+              image: list),
+        );
       }
-      // pointAnnotationManager.addOnPointAnnotationClickListener(); // TODO: Implement it
+
+      pointAnnotationManager.addOnPointAnnotationClickListener(
+        StationClickListener(context: context),
+      ); // Добавляем событие по клику на аннотацию
       pointAnnotationManager.createMulti(stationMarkers); // Добавляем на мапу
     });
   }
@@ -167,4 +173,41 @@ class _MapsWidgetState extends State<MapsWidget> {
       ),
     );
   }
+}
+
+class StationClickListener extends OnPointAnnotationClickListener {
+  StationClickListener({required this.context});
+
+  final BuildContext context;
+
+  @override
+  void onPointAnnotationClick(PointAnnotation annotation) {
+    showBottomSheet(
+        context: context,
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20.0))),
+        builder: (context) => Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height / 2.5,
+                child: Center(
+                  child: Text(
+                    annotation.textField ?? 'Остановка',
+                    style: Theme.of(context).textTheme.titleMedium,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ),
+            ));
+  }
+}
+
+class StationAnnotationOptions extends PointAnnotationOptions {
+  StationAnnotationOptions(
+      {image, geometry, required this.id, required this.name})
+      : super(geometry: geometry, image: image);
+
+  int id;
+  String name;
 }
