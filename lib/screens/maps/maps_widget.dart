@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:transport_sterlitamaka/secrets.dart';
 import 'package:transport_sterlitamaka/theme/map_style.dart';
 import 'package:transport_sterlitamaka/theme/user_colors.dart';
-import 'package:turf/helpers.dart' as turf;
+import 'package:transport_sterlitamaka/utils/dbhelper.dart';
+import 'package:turf/turf.dart' as turf;
+import 'package:transport_sterlitamaka/models/station.dart';
 
 class MapsWidget extends StatefulWidget {
   const MapsWidget({super.key});
@@ -16,6 +19,10 @@ class MapsWidget extends StatefulWidget {
 class _MapsWidgetState extends State<MapsWidget> {
   MapboxMap? mapboxMap;
   Position? currentPosition;
+  PointAnnotation? pointAnnotation;
+  PointAnnotationManager? pointAnnotationManager;
+
+  List<Station> stations = [];
 
   @override
   void initState() {
@@ -57,8 +64,37 @@ class _MapsWidgetState extends State<MapsWidget> {
 
   _onMapCreated(MapboxMap mapboxMap) {
     this.mapboxMap = mapboxMap;
+    _setupStationsMarkers();
     _setupMap();
     _setUserLocation();
+  }
+
+  Future<void> _setupStationsMarkers() async {
+    final stations = await DBHelper.instance.getAllStations();
+
+    mapboxMap?.annotations
+        .createPointAnnotationManager()
+        .then((pointAnnotationManager) async {
+      final ByteData bytes =
+          await rootBundle.load('assets/images/icon_station.png');
+      final Uint8List list =
+          bytes.buffer.asUint8List(); // Парсим картинку в байты
+
+      var stationMarkers = <PointAnnotationOptions>[]; // Массив маркеров
+
+      for (final station in stations) {
+        // Пробегаемся по массиву остановок и каждую рисуем на ее коордах
+        stationMarkers.add(PointAnnotationOptions(
+          geometry: turf.Point(
+                  coordinates:
+                      turf.Position(station.longitude, station.latitude))
+              .toJson(),
+          image: list,
+        ));
+      }
+      // pointAnnotationManager.addOnPointAnnotationClickListener(); // TODO: Implement it
+      pointAnnotationManager.createMulti(stationMarkers); // Добавляем на мапу
+    });
   }
 
   void _setupMap() {
