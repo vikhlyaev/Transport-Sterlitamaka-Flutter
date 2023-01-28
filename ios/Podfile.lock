@@ -1,5 +1,8 @@
 PODS:
   - Flutter (1.0.0)
+  - FMDB (2.7.5):
+    - FMDB/standard (= 2.7.5)
+  - FMDB/standard (2.7.5)
   - geolocator_apple (1.2.0):
     - Flutter
   - mapbox_maps_flutter (0.4.0):
@@ -14,15 +17,20 @@ PODS:
     - MapboxMobileEvents (= 1.0.8)
     - Turf (~> 2.0)
   - MapboxMobileEvents (1.0.8)
+  - sqflite (0.0.2):
+    - Flutter
+    - FMDB (>= 2.7.5)
   - Turf (2.6.1)
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
   - geolocator_apple (from `.symlinks/plugins/geolocator_apple/ios`)
   - mapbox_maps_flutter (from `.symlinks/plugins/mapbox_maps_flutter/ios`)
+  - sqflite (from `.symlinks/plugins/sqflite/ios`)
 
 SPEC REPOS:
   trunk:
+    - FMDB
     - MapboxCommon
     - MapboxCoreMaps
     - MapboxMaps
@@ -36,15 +44,19 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/geolocator_apple/ios"
   mapbox_maps_flutter:
     :path: ".symlinks/plugins/mapbox_maps_flutter/ios"
+  sqflite:
+    :path: ".symlinks/plugins/sqflite/ios"
 
 SPEC CHECKSUMS:
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
+  FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
   geolocator_apple: cc556e6844d508c95df1e87e3ea6fa4e58c50401
   mapbox_maps_flutter: 97a05e7827337bdd8931c42ee8cee9584e6c860f
   MapboxCommon: bfffb68226f650df065cf24e307576267ebc75e8
   MapboxCoreMaps: c74e3dd1d7d2b8c0ca5503d8c3e8ef79a8feccd5
   MapboxMaps: f5e3858e71a923f0e2fc168a93397cfd98341dc5
   MapboxMobileEvents: febdd92835daa258ca1c1faad0821c0b3394ef40
+  sqflite: 6d358c025f5b867b29ed92fc697fd34924e11904
   Turf: 469ce2c3d22e5e8e4818d5a3b254699a5c89efa4
 
 PODFILE CHECKSUM: d5b16e5ef56f756e0b0f66a80a151f3b5b62af65

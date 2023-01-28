@@ -36,6 +36,8 @@ dependencies:
   mapbox_maps_flutter: ^0.4.0
   turf: ^0.0.7
   geolocator: ^9.0.2
+  sqflite: ^2.2.4+1
+  path: ^1.8.2
 
 dev_dependencies:
   flutter_test:
