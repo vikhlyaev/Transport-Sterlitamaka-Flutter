@@ -13,7 +13,7 @@ class StationCellWidget extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const Image(image: AssetImage(Images.iconStation)),
+          const Image(image: AssetImage(Images.iconStationList)),
           const SizedBox(width: 16),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
