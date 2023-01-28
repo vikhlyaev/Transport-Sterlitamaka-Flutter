@@ -55,6 +55,11 @@ class DBHelper {
     return Station.fromMap(query.first);
   }
 
+  Future<void> updateStation(Station station) async {
+    final db = await instance.database;
+    await db.update('station', station.toMap(), where: 'id = ?', whereArgs: [station.id]);
+  }
+
   Future<List<Route>> getAllRoutes() async {
     final db = await instance.database;
 
@@ -70,6 +75,11 @@ class DBHelper {
     final query = await db.query('routes', where: 'id = ?', whereArgs: [id]);
 
     return Route.fromMap(query.first);
+  }
+
+  Future<void> updateRoute(Route route) async {
+    final db = await instance.database;
+    await db.update('routes', route.toMap(), where: 'id = ?', whereArgs: [route.id]);
   }
 
   Future<List<Scheme>> getAllSchemes() async {
