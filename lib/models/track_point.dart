@@ -22,4 +22,7 @@ class TrackPoint {
 
   Map<String, dynamic> toMap() =>
       {'latitude': latitude, 'longitude': longitude, 'avg_speed': avgSpeed, 'direction': direction, 'time': time};
+
+  @override
+  String toString() => '$latitude:$longitude';
 }

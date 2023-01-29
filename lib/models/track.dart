@@ -30,4 +30,7 @@ class Track {
         'vehicleType': vehicleType == VehicleType.TROLLEYBUS ? 'trolleybus' : 'bus',
         'point': point.toMap()
       };
+
+  @override
+  String toString() => 'Транспорт №$route (ID: $uuid): ${point.toString()}';
 }

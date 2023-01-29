@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:transport_sterlitamaka/models/enums.dart';
 import 'package:transport_sterlitamaka/models/tracks.dart';
@@ -24,7 +26,7 @@ abstract class APIHelper {
 
     if (response.statusCode == 200) {
       final tracks = Tracks.fromMap(response.data);
-      connectToServer();
+      await connectToServer();
       print(
           '[API]: ${tracks.tracks.where((element) => element.vehicleType == VehicleType.TROLLEYBUS).length} trolleybuses and ${tracks.tracks.where((element) => element.vehicleType == VehicleType.BUS).length} buses');
       return tracks;
@@ -38,8 +40,11 @@ abstract class APIHelper {
         headers: {'Authorization': Secrets.AUTH_SECRET});
 
     _socket?.stream.listen((event) {
-      print('[Socket]: $event');
-    }).onError(throw APIHelperException('Ошибка сокетного соединения'));
+      // print(event);
+      final tracks = Tracks.fromMap(jsonDecode(event));
+
+      print('[Socket]: ${tracks.tracks.first.toString()}');
+    });
   }
 
   static Future<void> closeConnection() async {
