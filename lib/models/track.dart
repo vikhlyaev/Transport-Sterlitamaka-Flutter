@@ -20,7 +20,7 @@ class Track {
       : uuid = map['uuid'],
         category = Category.S,
         route = map['route'],
-        vehicleType = map['vehicleType'] == 'trolleybus' ? VehicleType.TROLLEYBUS : VehicleType.BUS,
+        vehicleType = map['vehicle_type'] == 'trolleybus' ? VehicleType.TROLLEYBUS : VehicleType.BUS,
         point = TrackPoint.fromMap(map['point']);
 
   Map<String, dynamic> toMap() => {

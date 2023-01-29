@@ -1,7 +1,10 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+import 'package:transport_sterlitamaka/models/enums.dart';
 import 'package:transport_sterlitamaka/models/enums.dart';
 import 'package:transport_sterlitamaka/secrets.dart';
 import 'package:transport_sterlitamaka/theme/map_style.dart';
@@ -37,7 +40,7 @@ class _MapsWidgetState extends State<MapsWidget> {
     // проверка службы геолокации
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      print('Location services are disabled.');
+      print('[GEO]: Location services are disabled.');
       return;
     }
     // проверка разрешений
@@ -45,20 +48,20 @@ class _MapsWidgetState extends State<MapsWidget> {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        print('Location permissions are denied.');
+        print('[GEO]: Location permissions are denied.');
         return;
       }
     }
     // открытие настроек для включения геолокации
     if (permission == LocationPermission.deniedForever) {
       print(
-          'Location permissions are permanently denied, we cannot request permissions.');
+          '[GEO]: Location permissions are permanently denied, we cannot request permissions.');
       await Geolocator.openLocationSettings();
       return;
     }
     // запрос текущей позиции
     Position position = await Geolocator.getCurrentPosition();
-    print(position);
+    print('[GEO]: $position');
     setState(() {
       currentPosition = position;
     });
