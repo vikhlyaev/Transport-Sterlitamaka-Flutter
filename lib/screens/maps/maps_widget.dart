@@ -147,12 +147,25 @@ class _MapsWidgetState extends State<MapsWidget> {
   }
 
   void _setupMap() {
-    // Установка русской локализации
+    // установка русской локализации
     mapboxMap?.style.localizeLabels('ru', null);
-    // Отключение компаса и линии масштаба
+    // отключение компаса и линии масштаба
     mapboxMap?.compass.updateSettings(CompassSettings(enabled: false));
     mapboxMap?.scaleBar.updateSettings(ScaleBarSettings(enabled: false));
-    // Кастомный стиль
+    // отключение поворота карты
+    mapboxMap?.gestures.updateSettings(GesturesSettings(
+      rotateEnabled: false,
+      pinchToZoomEnabled: false,
+      scrollEnabled: true,
+      simultaneousRotateAndPinchToZoomEnabled: false,
+      scrollMode: ScrollMode.HORIZONTAL_AND_VERTICAL,
+    ));
+    // ограничение максимального и минимального зума карты
+    mapboxMap?.setBounds(CameraBoundsOptions(
+      maxZoom: 18,
+      minZoom: 14,
+    ));
+    // кастомный стиль
     mapboxMap?.loadStyleURI(MapStyle.color);
   }
 
@@ -169,6 +182,7 @@ class _MapsWidgetState extends State<MapsWidget> {
             currentPosition!.latitude,
           ),
         ).toJson(),
+        zoom: 17,
       ));
     }
   }
