@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+import 'package:transport_sterlitamaka/models/enums.dart';
+import 'package:transport_sterlitamaka/models/enums.dart';
 import 'package:transport_sterlitamaka/secrets.dart';
 import 'package:transport_sterlitamaka/theme/map_style.dart';
 import 'package:transport_sterlitamaka/theme/user_colors.dart';
+import 'package:transport_sterlitamaka/utils/apihelper.dart';
 import 'package:transport_sterlitamaka/utils/dbhelper.dart';
 import 'package:turf/turf.dart' as turf;
 import 'package:transport_sterlitamaka/models/station.dart';
@@ -49,8 +52,7 @@ class _MapsWidgetState extends State<MapsWidget> {
     }
     // открытие настроек для включения геолокации
     if (permission == LocationPermission.deniedForever) {
-      print(
-          'Location permissions are permanently denied, we cannot request permissions.');
+      print('Location permissions are permanently denied, we cannot request permissions.');
       await Geolocator.openLocationSettings();
       return;
     }
@@ -65,20 +67,44 @@ class _MapsWidgetState extends State<MapsWidget> {
   _onMapCreated(MapboxMap mapboxMap) {
     this.mapboxMap = mapboxMap;
     _setupStationsMarkers();
+    _setupTracksMarkers();
     _setupMap();
     _setUserLocation();
+  }
+
+  Future<void> _setupTracksMarkers() async {
+    final tracks = await APIHelper.getInitialCoords();
+
+    mapboxMap?.annotations.createPointAnnotationManager().then((pointAnnotationManager) async {
+      final ByteData trolleybusBytes = await rootBundle.load('assets/images/icon_trolleybus.png');
+      final Uint8List trolleybusList = trolleybusBytes.buffer.asUint8List(); // Парсим картинку в байты
+
+      final ByteData busBytes = await rootBundle.load('assets/images/icon_bus.png');
+      final Uint8List busList = busBytes.buffer.asUint8List(); // Парсим картинку в байты
+
+      var tracksMarkers = <PointAnnotationOptions>[];
+
+      for (final track in tracks.tracks) {
+        tracksMarkers.add(
+          PointAnnotationOptions(
+            geometry: turf.Point(
+                    coordinates: turf.Position(double.parse(track.point.longitude), double.parse(track.point.latitude)))
+                .toJson(),
+            image: track.vehicleType == VehicleType.TROLLEYBUS ? trolleybusList : busList,
+            iconRotate: double.parse(track.point.direction),
+          ),
+        );
+      }
+      pointAnnotationManager.createMulti(tracksMarkers); // Добавляем на мапу
+    });
   }
 
   Future<void> _setupStationsMarkers() async {
     final stations = await DBHelper.instance.getAllStations();
 
-    mapboxMap?.annotations
-        .createPointAnnotationManager()
-        .then((pointAnnotationManager) async {
-      final ByteData bytes =
-          await rootBundle.load('assets/images/icon_station.png');
-      final Uint8List list =
-          bytes.buffer.asUint8List(); // Парсим картинку в байты
+    mapboxMap?.annotations.createPointAnnotationManager().then((pointAnnotationManager) async {
+      final ByteData bytes = await rootBundle.load('assets/images/icon_station.png');
+      final Uint8List list = bytes.buffer.asUint8List(); // Парсим картинку в байты
 
       var stationMarkers = <StationAnnotationOptions>[]; // Массив маркеров
 
@@ -88,10 +114,7 @@ class _MapsWidgetState extends State<MapsWidget> {
           StationAnnotationOptions(
               id: station.id,
               name: station.name,
-              geometry: turf.Point(
-                      coordinates:
-                          turf.Position(station.longitude, station.latitude))
-                  .toJson(),
+              geometry: turf.Point(coordinates: turf.Position(station.longitude, station.latitude)).toJson(),
               image: list),
         );
       }
@@ -148,8 +171,7 @@ class _MapsWidgetState extends State<MapsWidget> {
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all(Colors.white),
                 foregroundColor: MaterialStateProperty.all(UserColors.blue),
-                overlayColor:
-                    MaterialStateProperty.all(UserColors.blue.withAlpha(20)),
+                overlayColor: MaterialStateProperty.all(UserColors.blue.withAlpha(20)),
                 padding: MaterialStateProperty.all(
                   const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 ),
@@ -184,15 +206,14 @@ class StationClickListener extends OnPointAnnotationClickListener {
   void onPointAnnotationClick(PointAnnotation annotation) {
     showBottomSheet(
         context: context,
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20.0))),
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20.0))),
         builder: (context) => Padding(
               padding: const EdgeInsets.all(16.0),
               child: SizedBox(
                 height: MediaQuery.of(context).size.height / 2.5,
                 child: Center(
                   child: Text(
-                    annotation.textField ?? 'Остановка',
+                    annotation.id,
                     style: Theme.of(context).textTheme.titleMedium,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -204,8 +225,7 @@ class StationClickListener extends OnPointAnnotationClickListener {
 }
 
 class StationAnnotationOptions extends PointAnnotationOptions {
-  StationAnnotationOptions(
-      {image, geometry, required this.id, required this.name})
+  StationAnnotationOptions({image, geometry, required this.id, required this.name})
       : super(geometry: geometry, image: image);
 
   int id;
