@@ -1,5 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:transport_sterlitamaka/screens/stations/widgets/station_cell_widget.dart';
+import 'package:transport_sterlitamaka/utils/dbhelper.dart';
 
 class StationsWidget extends StatefulWidget {
   const StationsWidget({super.key});
@@ -17,42 +19,54 @@ class _StationsWidgetState extends State<StationsWidget> {
       appBar: AppBar(
         title: const Text('Остановки'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Stack(
-          children: [
-            ListView.separated(
-              scrollDirection: Axis.vertical,
-              padding: const EdgeInsets.only(top: 65),
-              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              itemCount: 20,
-              itemBuilder: (context, index) {
-                return const StationCellWidget();
-              },
-              separatorBuilder: (context, index) => const Divider(
-                color: Color(0xFFD9D9D9),
-                height: 1,
+      body: FutureBuilder(
+        future: DBHelper.instance.getAllStations(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Stack(
+                children: [
+                  ListView.separated(
+                    scrollDirection: Axis.vertical,
+                    padding: const EdgeInsets.only(top: 65),
+                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                    itemCount: 20,
+                    itemBuilder: (context, index) {
+                      return StationCellWidget(
+                        station: snapshot.data![index],
+                      );
+                    },
+                    separatorBuilder: (context, index) => const Divider(
+                      color: Color(0xFFD9D9D9),
+                      height: 1,
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.only(top: 16, bottom: 8),
+                    color: Colors.white,
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: const InputDecoration(
+                        hintText: 'Укажите название остановки',
+                        labelText: 'Поиск',
+                        contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+                      ),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.normal,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-            Container(
-              padding: const EdgeInsets.only(top: 16, bottom: 8),
-              color: Colors.white,
-              child: TextField(
-                controller: _searchController,
-                decoration: const InputDecoration(
-                  hintText: 'Укажите название остановки',
-                  labelText: 'Поиск',
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-                ),
-                style: const TextStyle(
-                  fontWeight: FontWeight.normal,
-                  fontSize: 16,
-                ),
-              ),
-            ),
-          ],
-        ),
+            );
+          } else {
+            return const Center(
+              child: CupertinoActivityIndicator(),
+            );
+          }
+        },
       ),
     );
   }

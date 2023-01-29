@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:transport_sterlitamaka/models/station.dart';
 import 'package:transport_sterlitamaka/resources/resources.dart';
 
 class StationCellWidget extends StatelessWidget {
   const StationCellWidget({
+    required this.station,
     Key? key,
   }) : super(key: key);
+
+  final Station station;
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +23,7 @@ class StationCellWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '23 мая',
+                station.name,
                 style: Theme.of(context).textTheme.titleMedium,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,

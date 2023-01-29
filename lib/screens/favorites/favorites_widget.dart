@@ -30,7 +30,8 @@ class FavoritesWidget extends StatelessWidget {
             shrinkWrap: true,
             itemCount: 10,
             itemBuilder: (context, index) {
-              return const StationCellWidget();
+              // return const StationCellWidget();
+              return Placeholder();
             },
             separatorBuilder: (context, index) => const Divider(
               color: Color(0xFFD9D9D9),
