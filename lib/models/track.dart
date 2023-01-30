@@ -1,7 +1,8 @@
+import 'package:equatable/equatable.dart';
 import 'package:transport_sterlitamaka/models/enums.dart';
 import 'package:transport_sterlitamaka/models/track_point.dart';
 
-class Track {
+class Track extends Equatable {
   String uuid;
   Category category;
   String route;
@@ -33,4 +34,7 @@ class Track {
 
   @override
   String toString() => 'Транспорт №$route (ID: $uuid): ${point.toString()}';
+
+  @override
+  List<Object?> get props => [uuid, category, route, vehicleType, point];
 }

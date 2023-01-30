@@ -1,4 +1,6 @@
-class TrackPoint {
+import 'package:equatable/equatable.dart';
+
+class TrackPoint extends Equatable {
   String latitude;
   String longitude;
   String avgSpeed;
@@ -25,4 +27,7 @@ class TrackPoint {
 
   @override
   String toString() => '$latitude:$longitude';
+
+  @override
+  List<Object?> get props => [latitude, longitude];
 }
