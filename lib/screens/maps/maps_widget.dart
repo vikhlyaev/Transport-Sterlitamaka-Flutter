@@ -13,6 +13,7 @@ import 'package:transport_sterlitamaka/models/track_symbol.dart';
 import 'package:transport_sterlitamaka/models/track_symbol_options.dart';
 import 'package:transport_sterlitamaka/models/tracks.dart';
 import 'package:transport_sterlitamaka/secrets.dart';
+import 'package:transport_sterlitamaka/theme/map_style.dart';
 import 'package:transport_sterlitamaka/theme/user_colors.dart';
 import 'package:transport_sterlitamaka/utils/apihelper.dart';
 import 'package:transport_sterlitamaka/utils/dbhelper.dart';
@@ -27,8 +28,13 @@ class MapsWidget extends StatefulWidget {
 
 class _MapsWidgetState extends State<MapsWidget> {
   Position? currentPosition;
-  late MapboxMapController _controller;
   Symbol? _selectedSymbol;
+
+  late MapboxMapController _controller;
+  final MinMaxZoomPreference _minMaxZoomPreference =
+      const MinMaxZoomPreference(14.0, 17.0);
+  final _attributionRightBottom = const Point(20, 20);
+  final _logoRightTop = const Point(-1000, 0);
 
   List<Track> tracks = [];
   List<TrackSymbol> trackSymbols = [];
@@ -39,7 +45,7 @@ class _MapsWidgetState extends State<MapsWidget> {
     _determinePosition();
   }
 
-  // проверка доступности локации
+  // запрос локации
   void _determinePosition() async {
     // проверка службы геолокации
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -123,6 +129,8 @@ class _MapsWidgetState extends State<MapsWidget> {
   /// Коллбэк на подгрузку стилей, грузит необходимые дополнительные ресурсы, устанавливает пользовательскую локацию
   void _onStyleLoaded() async {
     await addImageFromAsset('station', 'assets/images/3.0x/icon_station.png');
+    await addImageFromAsset(
+        'station-active', 'assets/images/3.0x/icon_station_active.png');
     await addImageFromAsset(
         'trolleybus-stu', 'assets/images/3.0x/icon_trolleybus.png');
     await addImageFromAsset('bus-stu', 'assets/images/3.0x/icon_bus.png');
@@ -229,8 +237,15 @@ class _MapsWidgetState extends State<MapsWidget> {
   /// Включение маркера пользовательской позиции
   void _setUserLocation() {
     if (currentPosition != null) {
-      _controller.toLatLng(
-          Point(currentPosition!.latitude, currentPosition!.longitude));
+      _controller.animateCamera(CameraUpdate.newCameraPosition(
+        CameraPosition(
+          target: LatLng(
+            currentPosition!.latitude,
+            currentPosition!.longitude,
+          ),
+          zoom: 17,
+        ),
+      ));
     }
     setState(() {});
   }
@@ -242,8 +257,20 @@ class _MapsWidgetState extends State<MapsWidget> {
         children: [
           MapboxMap(
             accessToken: Secrets.ACCESS_TOKEN,
-            initialCameraPosition:
-                CameraPosition(target: LatLng(53.62381, 55.91883), zoom: 15.0),
+            styleString: MapStyle.color,
+            initialCameraPosition: const CameraPosition(
+              target: LatLng(
+                53.630403,
+                55.930825,
+              ),
+              zoom: 17.0,
+            ),
+            minMaxZoomPreference: _minMaxZoomPreference,
+            rotateGesturesEnabled: false,
+            myLocationEnabled: true,
+            myLocationTrackingMode: MyLocationTrackingMode.Tracking,
+            attributionButtonMargins: _attributionRightBottom,
+            logoViewMargins: _logoRightTop,
             onMapCreated: _onMapCreated,
             onStyleLoadedCallback: _onStyleLoaded,
           ),
