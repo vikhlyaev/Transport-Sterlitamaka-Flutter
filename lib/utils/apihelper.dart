@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:dio/dio.dart';
 import 'package:transport_sterlitamaka/models/enums.dart';
 import 'package:transport_sterlitamaka/models/tracks.dart';
@@ -35,7 +34,8 @@ abstract class APIHelper {
   }
 
   static Stream<dynamic>? webSocketStream() {
-    _socket = IOWebSocketChannel.connect('ws://${Secrets.API_IP}:${Secrets.API_PORT}${Secrets.WS_ENDPOINT}',
+    _socket = IOWebSocketChannel.connect(
+        'ws://${Secrets.API_IP}:${Secrets.API_PORT}${Secrets.WS_ENDPOINT}',
         headers: {'Authorization': Secrets.AUTH_SECRET});
 
     return _socket?.stream;
