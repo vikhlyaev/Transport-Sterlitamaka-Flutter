@@ -26,7 +26,6 @@ abstract class APIHelper {
 
     if (response.statusCode == 200) {
       final tracks = Tracks.fromMap(response.data);
-      await connectToServer();
       print(
           '[API]: ${tracks.tracks.where((element) => element.vehicleType == VehicleType.TROLLEYBUS).length} trolleybuses and ${tracks.tracks.where((element) => element.vehicleType == VehicleType.BUS).length} buses');
       return tracks;
@@ -35,16 +34,11 @@ abstract class APIHelper {
     }
   }
 
-  static Future<void> connectToServer() async {
+  static Stream<dynamic>? webSocketStream() {
     _socket = IOWebSocketChannel.connect('ws://${Secrets.API_IP}:${Secrets.API_PORT}${Secrets.WS_ENDPOINT}',
         headers: {'Authorization': Secrets.AUTH_SECRET});
 
-    _socket?.stream.listen((event) {
-      // print(event);
-      final tracks = Tracks.fromMap(jsonDecode(event));
-
-      print('[Socket]: ${tracks.tracks.first.toString()}');
-    });
+    return _socket?.stream;
   }
 
   static Future<void> closeConnection() async {
