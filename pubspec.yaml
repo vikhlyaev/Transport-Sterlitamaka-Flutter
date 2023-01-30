@@ -33,14 +33,15 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.2
   salomon_bottom_bar: ^3.3.1
-  mapbox_maps_flutter: ^0.4.0
+  mapbox_gl: ^0.16.0
+  mapbox_gl_platform_interface: ^0.16.0
   turf: ^0.0.7
   geolocator: ^9.0.2
   sqflite: ^2.2.4+1
   path: ^1.8.2
   dio: ^4.0.6
   web_socket_channel: ^2.3.0
-  infinite_scroll_pagination: ^3.2.0
+  equatable: ^2.0.5
 
 dev_dependencies:
   flutter_test:
