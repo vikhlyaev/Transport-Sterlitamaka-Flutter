@@ -1,17 +1,21 @@
-import 'dart:developer';
-
+import 'dart:convert';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:transport_sterlitamaka/extensions/for_custom_symbols_extension.dart';
 import 'package:transport_sterlitamaka/models/enums.dart';
-import 'package:transport_sterlitamaka/models/enums.dart';
+import 'package:transport_sterlitamaka/models/station_symbol.dart';
+import 'package:transport_sterlitamaka/models/station_symbol_options.dart';
+import 'package:transport_sterlitamaka/models/track.dart';
+import 'package:transport_sterlitamaka/models/track_symbol.dart';
+import 'package:transport_sterlitamaka/models/track_symbol_options.dart';
+import 'package:transport_sterlitamaka/models/tracks.dart';
 import 'package:transport_sterlitamaka/secrets.dart';
-import 'package:transport_sterlitamaka/theme/map_style.dart';
 import 'package:transport_sterlitamaka/theme/user_colors.dart';
 import 'package:transport_sterlitamaka/utils/apihelper.dart';
 import 'package:transport_sterlitamaka/utils/dbhelper.dart';
-import 'package:turf/turf.dart' as turf;
 import 'package:transport_sterlitamaka/models/station.dart';
 
 class MapsWidget extends StatefulWidget {
@@ -22,12 +26,12 @@ class MapsWidget extends StatefulWidget {
 }
 
 class _MapsWidgetState extends State<MapsWidget> {
-  MapboxMap? mapboxMap;
   Position? currentPosition;
-  PointAnnotation? pointAnnotation;
-  PointAnnotationManager? pointAnnotationManager;
+  late MapboxMapController _controller;
+  Symbol? _selectedSymbol;
 
-  List<Station> stations = [];
+  List<Track> tracks = [];
+  List<TrackSymbol> trackSymbols = [];
 
   @override
   void initState() {
@@ -67,124 +71,168 @@ class _MapsWidgetState extends State<MapsWidget> {
     });
   }
 
-  _onMapCreated(MapboxMap mapboxMap) {
-    this.mapboxMap = mapboxMap;
-    _setupStationsMarkers();
-    _setupTracksMarkers();
-    _setupMap();
-    _setUserLocation();
-  }
+  /// Коллбэк на создание карты, подключение к сокету и добавление обработчика нажатий
+  void _onMapCreated(MapboxMapController controller) {
+    _controller = controller;
+    controller.onSymbolTapped.add(_onSymbolTapped);
 
-  Future<void> _setupTracksMarkers() async {
-    final tracks = await APIHelper.getInitialCoords();
-
-    mapboxMap?.annotations
-        .createPointAnnotationManager()
-        .then((pointAnnotationManager) async {
-      final ByteData trolleybusBytes =
-          await rootBundle.load('assets/images/icon_trolleybus.png');
-      final Uint8List trolleybusList =
-          trolleybusBytes.buffer.asUint8List(); // Парсим картинку в байты
-
-      final ByteData busBytes =
-          await rootBundle.load('assets/images/icon_bus.png');
-      final Uint8List busList =
-          busBytes.buffer.asUint8List(); // Парсим картинку в байты
-
-      var tracksMarkers = <PointAnnotationOptions>[];
-
-      for (final track in tracks.tracks) {
-        tracksMarkers.add(
-          PointAnnotationOptions(
-            geometry: turf.Point(
-                    coordinates: turf.Position(
-                        double.parse(track.point.longitude),
-                        double.parse(track.point.latitude)))
-                .toJson(),
-            image: track.vehicleType == VehicleType.TROLLEYBUS
-                ? trolleybusList
-                : busList,
-            iconRotate: double.parse(track.point.direction),
-          ),
-        );
-      }
-      pointAnnotationManager.createMulti(tracksMarkers); // Добавляем на мапу
+    APIHelper.webSocketStream()?.listen((event) {
+      final incomingTracks = Tracks.fromMap(jsonDecode(event)).tracks;
+      checkForUpdateTrack(incomingTracks);
     });
   }
 
-  Future<void> _setupStationsMarkers() async {
-    final stations = await DBHelper.instance.getAllStations();
-
-    mapboxMap?.annotations
-        .createPointAnnotationManager()
-        .then((pointAnnotationManager) async {
-      final ByteData bytes =
-          await rootBundle.load('assets/images/icon_station.png');
-      final Uint8List list =
-          bytes.buffer.asUint8List(); // Парсим картинку в байты
-
-      var stationMarkers = <StationAnnotationOptions>[]; // Массив маркеров
-
-      for (final station in stations) {
-        // Пробегаемся по массиву остановок и каждую рисуем на ее коордах
-        stationMarkers.add(
-          StationAnnotationOptions(
-              id: station.id,
-              name: station.name,
-              geometry: turf.Point(
-                      coordinates:
-                          turf.Position(station.longitude, station.latitude))
-                  .toJson(),
-              image: list),
-        );
+  /// Обнаруживает транспорт, метку которого необходимо обновить
+  void checkForUpdateTrack(List<Track> incomingTracks) {
+    // 1. Проходить по пришедшему массиву и сравнивать транспорт в текущем массиве
+    // 2. Если координаты поменялись, то вызываем метод обновления метки,
+    //    в противном случае пропускаем
+    // 2.1. В методе обновления или до него мы должны присваивать текущему массиву новые координаты.
+    // 2.2. Должны менять: ротацию и координаты.
+    // 3. После этого подумать над плавностью.
+    for (int i = 0; i < incomingTracks.length; i++) {
+      if (incomingTracks[i] !=
+          tracks.where((e) => e.uuid == incomingTracks[i].uuid).first) {
+        updateTrackSymbol(incomingTracks[i]);
+        tracks[tracks.indexOf(
+                tracks.where((e) => e.uuid == incomingTracks[i].uuid).first)] =
+            incomingTracks[i];
       }
-
-      pointAnnotationManager.addOnPointAnnotationClickListener(
-        StationClickListener(context: context),
-      ); // Добавляем событие по клику на аннотацию
-      pointAnnotationManager.createMulti(stationMarkers); // Добавляем на мапу
-    });
-  }
-
-  void _setupMap() {
-    // установка русской локализации
-    mapboxMap?.style.localizeLabels('ru', null);
-    // отключение компаса и линии масштаба
-    mapboxMap?.compass.updateSettings(CompassSettings(enabled: false));
-    mapboxMap?.scaleBar.updateSettings(ScaleBarSettings(enabled: false));
-    // отключение поворота карты
-    mapboxMap?.gestures.updateSettings(GesturesSettings(
-      rotateEnabled: false,
-      pinchToZoomEnabled: false,
-      scrollEnabled: true,
-      simultaneousRotateAndPinchToZoomEnabled: false,
-      scrollMode: ScrollMode.HORIZONTAL_AND_VERTICAL,
-    ));
-    // ограничение максимального и минимального зума карты
-    mapboxMap?.setBounds(CameraBoundsOptions(
-      maxZoom: 18,
-      minZoom: 14,
-    ));
-    // кастомный стиль
-    mapboxMap?.loadStyleURI(MapStyle.color);
-  }
-
-  void _setUserLocation() {
-    // Включение маркера пользовательской позиции
-    mapboxMap?.location.updateSettings(
-      LocationComponentSettings(enabled: true),
-    );
-    if (currentPosition != null) {
-      mapboxMap?.setCamera(CameraOptions(
-        center: turf.Point(
-          coordinates: turf.Position(
-            currentPosition!.longitude,
-            currentPosition!.latitude,
-          ),
-        ).toJson(),
-        zoom: 17,
-      ));
     }
+  }
+
+  /// Обновляет маркер транспорта
+  void updateTrackSymbol(Track incomingTrack) {
+    print('[TrackUpdater]: update $incomingTrack');
+    final currentSymbol = trackSymbols
+        .where((e) => e.trackId == int.parse(incomingTrack.uuid))
+        .first;
+    _controller.updateSymbol(
+      currentSymbol,
+      currentSymbol.options.copyWith(
+        SymbolOptions(
+          geometry: LatLng(double.parse(incomingTrack.point.latitude),
+              double.parse(incomingTrack.point.longitude)),
+          iconRotate: double.parse(incomingTrack.point.direction),
+        ),
+      ),
+    );
+    setState(() {});
+  }
+
+  /// Коллбэк на подгрузку стилей, грузит необходимые дополнительные ресурсы, устанавливает пользовательскую локацию
+  void _onStyleLoaded() async {
+    await addImageFromAsset('station', 'assets/images/3.0x/icon_station.png');
+    await addImageFromAsset(
+        'trolleybus-stu', 'assets/images/3.0x/icon_trolleybus.png');
+    await addImageFromAsset('bus-stu', 'assets/images/3.0x/icon_bus.png');
+    _setUserLocation();
+    _addStationSymbols();
+    _addInitialTrackSymbols();
+  }
+
+  /// Обработчик нажатий на маркеры
+  void _onSymbolTapped(Symbol symbol) {
+    // TODO: make bottomsheet better
+    if (symbol is StationSymbol) {
+      final stSymbol = symbol as StationSymbol;
+      showBottomSheet(
+        context: context,
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20.0))),
+        builder: (context) => Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height / 2.5,
+            child: Center(
+              child: Text(
+                'name: ${stSymbol.name} - id: ${stSymbol.stationId}',
+                style: Theme.of(context).textTheme.titleMedium,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+        ),
+      );
+    } else if (symbol is TrackSymbol) {
+      final trSymbol = symbol as TrackSymbol;
+      showBottomSheet(
+        context: context,
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20.0))),
+        builder: (context) => Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height / 2.5,
+            child: Center(
+              child: Text(
+                'route: ${trSymbol.route} - id: ${trSymbol.trackId}',
+                style: Theme.of(context).textTheme.titleMedium,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+  }
+
+  /// Читает картинку и передает ее в контроллер карты в байтовом представлении
+  Future<void> addImageFromAsset(String name, String assetName) async {
+    final ByteData bytes = await rootBundle.load(assetName);
+    final Uint8List list = bytes.buffer.asUint8List();
+    return _controller.addImage(name, list);
+  }
+
+  /// Свойства маркера остановки
+  StationSymbolOptions _getStationSymbolOptions(Station station) =>
+      StationSymbolOptions(
+          geometry: LatLng(station.latitude, station.longitude),
+          iconImage: 'station',
+          iconSize: 1,
+          id: station.id,
+          name: station.name);
+
+  /// Свойства маркера транспорта
+  TrackSymbolOptions _getTrackSymbolOptions(Track track) => TrackSymbolOptions(
+      geometry: LatLng(double.parse(track.point.latitude),
+          double.parse(track.point.longitude)),
+      iconImage: track.vehicleType == VehicleType.TROLLEYBUS
+          ? 'trolleybus-stu'
+          : 'bus-stu',
+      iconSize: 1,
+      iconRotate: double.parse(track.point.direction),
+      id: int.parse(track.uuid),
+      route: track.route);
+
+  /// Добавляет символы остановок на карты, забрав необходимую инфу из БД
+  void _addStationSymbols() async {
+    final stations = await DBHelper.instance.getAllStations();
+    final stationSymbolsOptions =
+        stations.map((e) => _getStationSymbolOptions(e)).toList();
+
+    _controller.addStationSymbols(stationSymbolsOptions);
+  }
+
+  /// Добавляет символы транспорта на карты, забрав необходимую инфу с API
+  void _addInitialTrackSymbols() async {
+    final tracksObject = await APIHelper.getInitialCoords();
+    tracks = tracksObject.tracks;
+    final tracksSymbolsOptions =
+        tracks.map((e) => _getTrackSymbolOptions(e)).toList();
+
+    trackSymbols = await _controller.addTrackSymbols(tracksSymbolsOptions);
+  }
+
+  /// Включение маркера пользовательской позиции
+  void _setUserLocation() {
+    if (currentPosition != null) {
+      _controller.toLatLng(
+          Point(currentPosition!.latitude, currentPosition!.longitude));
+    }
+    setState(() {});
   }
 
   @override
@@ -192,10 +240,12 @@ class _MapsWidgetState extends State<MapsWidget> {
     return Scaffold(
       body: Stack(
         children: [
-          MapWidget(
-            resourceOptions: ResourceOptions(accessToken: Secrets.ACCESS_TOKEN),
-            cameraOptions: CameraOptions(zoom: 17.0),
+          MapboxMap(
+            accessToken: Secrets.ACCESS_TOKEN,
+            initialCameraPosition:
+                CameraPosition(target: LatLng(53.62381, 55.91883), zoom: 15.0),
             onMapCreated: _onMapCreated,
+            onStyleLoadedCallback: _onStyleLoaded,
           ),
           Positioned(
             top: 60,
@@ -252,41 +302,4 @@ class _MapsWidgetState extends State<MapsWidget> {
       ),
     );
   }
-}
-
-class StationClickListener extends OnPointAnnotationClickListener {
-  StationClickListener({required this.context});
-
-  final BuildContext context;
-
-  @override
-  void onPointAnnotationClick(PointAnnotation annotation) {
-    showBottomSheet(
-        context: context,
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20.0))),
-        builder: (context) => Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: SizedBox(
-                height: MediaQuery.of(context).size.height / 2.5,
-                child: Center(
-                  child: Text(
-                    annotation.id,
-                    style: Theme.of(context).textTheme.titleMedium,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ),
-            ));
-  }
-}
-
-class StationAnnotationOptions extends PointAnnotationOptions {
-  StationAnnotationOptions(
-      {image, geometry, required this.id, required this.name})
-      : super(geometry: geometry, image: image);
-
-  int id;
-  String name;
 }
