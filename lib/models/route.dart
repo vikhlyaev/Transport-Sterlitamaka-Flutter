@@ -1,3 +1,5 @@
+import 'package:transport_sterlitamaka/models/station.dart';
+
 class Route {
   int id;
   int name;
@@ -24,5 +26,9 @@ class Route {
       'desc_id': descId,
       'isFavorite': isFavorite,
     };
+  }
+
+  List<String> get desc {
+    return descId.split(' - ');
   }
 }
