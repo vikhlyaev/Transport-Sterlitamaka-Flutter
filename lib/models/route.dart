@@ -4,7 +4,7 @@ class Route {
   int id;
   int name;
   String descId;
-  bool isFavorite;
+  int isFavorite;
 
   Route({
     required this.id,
@@ -17,7 +17,7 @@ class Route {
       : id = route['id'] as int,
         name = route['name'] as int,
         descId = route['desc_id'] as String,
-        isFavorite = route['isFavorite'] == 1 ? true : false;
+        isFavorite = route['isFavorite'];
 
   Map<String, dynamic> toMap() {
     return {
@@ -29,4 +29,7 @@ class Route {
   }
 
   List<String> get desc => descId.split(' - ');
+
+  @override
+  String toString() => '$name: $id';
 }

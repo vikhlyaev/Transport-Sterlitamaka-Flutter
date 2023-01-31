@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:provider/provider.dart';
 import 'package:transport_sterlitamaka/extensions/for_custom_symbols_extension.dart';
 import 'package:transport_sterlitamaka/models/enums.dart';
 import 'package:transport_sterlitamaka/models/station_symbol.dart';
@@ -12,13 +13,16 @@ import 'package:transport_sterlitamaka/models/track.dart';
 import 'package:transport_sterlitamaka/models/track_symbol.dart';
 import 'package:transport_sterlitamaka/models/track_symbol_options.dart';
 import 'package:transport_sterlitamaka/models/tracks.dart';
-import 'package:transport_sterlitamaka/resources/resources.dart';
+import 'package:transport_sterlitamaka/screens/maps/widgets/station_bottom_sheet.dart';
+import 'package:transport_sterlitamaka/screens/maps/widgets/track_bottom_sheet.dart';
 import 'package:transport_sterlitamaka/secrets.dart';
 import 'package:transport_sterlitamaka/theme/map_style.dart';
 import 'package:transport_sterlitamaka/theme/user_colors.dart';
 import 'package:transport_sterlitamaka/utils/apihelper.dart';
 import 'package:transport_sterlitamaka/utils/dbhelper.dart';
 import 'package:transport_sterlitamaka/models/station.dart';
+import 'package:transport_sterlitamaka/models/route.dart' as m;
+import 'package:transport_sterlitamaka/utils/favorites_provider.dart';
 
 class MapsWidget extends StatefulWidget {
   const MapsWidget({super.key});
@@ -35,6 +39,7 @@ class _MapsWidgetState extends State<MapsWidget> {
   List<Track> tracks = [];
   List<TrackSymbol> trackSymbols = [];
   List<Station> stations = [];
+  List<m.Route> routes = [];
 
   final MinMaxZoomPreference _minMaxZoomPreference =
       const MinMaxZoomPreference(14.0, 17.0);
@@ -80,14 +85,22 @@ class _MapsWidgetState extends State<MapsWidget> {
   }
 
   /// Коллбэк на создание карты, подключение к сокету и добавление обработчика нажатий
-  void _onMapCreated(MapboxMapController controller) {
+  void _onMapCreated(MapboxMapController controller) async {
     _controller = controller;
     controller.onSymbolTapped.add(_onSymbolTapped);
 
     APIHelper.webSocketStream()?.listen((event) {
-      final incomingTracks = Tracks.fromMap(jsonDecode(event)).tracks;
-      checkForUpdateTrack(incomingTracks);
+      try {
+        final incomingTracks = Tracks.fromMap(jsonDecode(event)).tracks;
+        checkForUpdateTrack(incomingTracks);
+      } catch (e, stacktrace) {
+        print('[Socket] Exception: $e - $stacktrace');
+      }
     });
+
+    context.read<FavoritesProvider>()
+      ..addStations(await DBHelper.instance.getFavoriteStations())
+      ..addRoutes(await DBHelper.instance.getFavoriteRoutes());
   }
 
   /// Обнаруживает транспорт, метку которого необходимо обновить
@@ -139,6 +152,7 @@ class _MapsWidgetState extends State<MapsWidget> {
     _setUserLocation();
     _addStationSymbols();
     _addInitialTrackSymbols();
+    routes.addAll(await DBHelper.instance.routes);
   }
 
   /// Обработчик нажатий на маркеры
@@ -153,52 +167,8 @@ class _MapsWidgetState extends State<MapsWidget> {
             top: Radius.circular(10.0),
           ),
         ),
-        builder: (context) => Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Image(image: AssetImage(Images.iconStationList)),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          stSymbol.name ?? 'Безымянная',
-                          style: Theme.of(context).textTheme.titleMedium,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 3),
-                        Text(
-                          'Остановка общ. транспорта',
-                          style: Theme.of(context).textTheme.bodySmall,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        )
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      DBHelper.instance.updateStation(stations
-                          .where((e) => e.id == stSymbol.stationId)
-                          .first);
-                    },
-                    icon: const Icon(Icons.favorite_border),
-                  )
-                ],
-              ),
-            ],
-          ),
-        ),
+        builder: (context) =>
+            StationBottomSheet(stSymbol: stSymbol, stations: stations),
       );
     } else if (symbol is TrackSymbol) {
       final trSymbol = symbol as TrackSymbol;
@@ -209,53 +179,8 @@ class _MapsWidgetState extends State<MapsWidget> {
             top: Radius.circular(10.0),
           ),
         ),
-        builder: (context) => Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Image(
-                    image: AssetImage(
-                        trSymbol.vehicleType == VehicleType.TROLLEYBUS
-                            ? Images.iconTrolleybusList
-                            : Images.iconBusList),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '${trSymbol.vehicleType == VehicleType.TROLLEYBUS ? 'Троллейбус' : 'Маршрутка'} ${trSymbol.route}',
-                          style: Theme.of(context).textTheme.titleMedium,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 3),
-                        Text(
-                          'Остановка общ. транспорта',
-                          style: Theme.of(context).textTheme.bodySmall,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        )
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () => print('add favorite'),
-                    icon: const Icon(Icons.favorite_border),
-                  )
-                ],
-              ),
-            ],
-          ),
-        ),
+        builder: (context) =>
+            TrackBottomSheet(trSymbol: trSymbol, routes: routes),
       );
     }
   }

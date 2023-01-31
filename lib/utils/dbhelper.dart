@@ -29,20 +29,18 @@ class DBHelper {
   Future<Database> _initDB() async {
     var databasesPath = await getDatabasesPath();
     var path = join(databasesPath, 'db.db');
+    // Если в директории баз данных приложения (речь идет не про ассеты) есть база, значит открываем ее,
+    // в противном случае - копируем из ассетов новую (пустую)
+    if (!File.fromUri(Uri(path: path)).existsSync()) {
+      try {
+        await Directory(dirname(path)).create(recursive: true);
+      } catch (_) {}
 
-// delete existing if any
-    await deleteDatabase(path);
-
-// Make sure the parent directory exists
-    try {
-      await Directory(dirname(path)).create(recursive: true);
-    } catch (_) {}
-
-// Copy from asset
-    ByteData data = await rootBundle.load(join('assets', 'db.db'));
-    List<int> bytes =
-        data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-    await File(path).writeAsBytes(bytes, flush: true);
+      ByteData data = await rootBundle.load(join('assets', 'db.db'));
+      List<int> bytes =
+          data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+      await File(path).writeAsBytes(bytes, flush: true);
+    }
 
     return _database = await openDatabase(
       path,
@@ -105,6 +103,13 @@ class DBHelper {
     final db = await instance.database;
     await db.update('routes', route.toMap(),
         where: 'id = ?', whereArgs: [route.id]);
+  }
+
+  Future<List<Route>> getFavoriteRoutes() async {
+    final db = await instance.database;
+    final query = await db.query('routes', where: 'isFavorite = 1');
+
+    return query.map((e) => Route.fromMap(e)).toList();
   }
 
   Future<List<SchemePoint>> _getAllSchemes() async {
