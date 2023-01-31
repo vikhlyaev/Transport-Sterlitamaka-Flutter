@@ -17,7 +17,7 @@ class RouteButtonWidget extends StatelessWidget {
       child: Text(
         route.name.toString(),
         style: const TextStyle(
-          fontSize: 20,
+          fontSize: 18,
           color: UserColors.blue,
         ),
       ),
