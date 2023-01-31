@@ -4,6 +4,7 @@ import 'package:mapbox_gl/mapbox_gl.dart';
 class StationSymbolOptions extends SymbolOptions {
   final int id;
   final String name;
+  final int isFavorite;
 
   StationSymbolOptions({
     String? iconImage,
@@ -36,6 +37,7 @@ class StationSymbolOptions extends SymbolOptions {
     bool? draggable,
     required this.id,
     required this.name,
+    required this.isFavorite,
   }) : super(
           iconSize: iconSize,
           geometry: geometry,
