@@ -20,27 +20,24 @@ class _StationsWidgetState extends State<StationsWidget> {
         title: const Text('Остановки'),
       ),
       body: FutureBuilder(
-        future: DBHelper.instance.getAllStations(),
+        future: DBHelper.instance.stations,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Stack(
                 children: [
-                  ListView.separated(
+                  ListView.builder(
                     scrollDirection: Axis.vertical,
                     padding: const EdgeInsets.only(top: 65),
-                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                    itemCount: 20,
+                    keyboardDismissBehavior:
+                        ScrollViewKeyboardDismissBehavior.onDrag,
+                    itemCount: snapshot.data!.length,
                     itemBuilder: (context, index) {
                       return StationCellWidget(
                         station: snapshot.data![index],
                       );
                     },
-                    separatorBuilder: (context, index) => const Divider(
-                      color: Color(0xFFD9D9D9),
-                      height: 1,
-                    ),
                   ),
                   Container(
                     padding: const EdgeInsets.only(top: 16, bottom: 8),
@@ -50,7 +47,8 @@ class _StationsWidgetState extends State<StationsWidget> {
                       decoration: const InputDecoration(
                         hintText: 'Укажите название остановки',
                         labelText: 'Поиск',
-                        contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 10, vertical: 12),
                       ),
                       style: const TextStyle(
                         fontWeight: FontWeight.normal,

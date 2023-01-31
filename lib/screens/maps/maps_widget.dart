@@ -12,8 +12,7 @@ import 'package:transport_sterlitamaka/models/track.dart';
 import 'package:transport_sterlitamaka/models/track_symbol.dart';
 import 'package:transport_sterlitamaka/models/track_symbol_options.dart';
 import 'package:transport_sterlitamaka/models/tracks.dart';
-import 'package:transport_sterlitamaka/screens/maps/widgets/station_cell_bottom_sheet_widget.dart';
-import 'package:transport_sterlitamaka/screens/maps/widgets/track_cell_bottom_sheet_widget.dart';
+import 'package:transport_sterlitamaka/resources/resources.dart';
 import 'package:transport_sterlitamaka/secrets.dart';
 import 'package:transport_sterlitamaka/theme/map_style.dart';
 import 'package:transport_sterlitamaka/theme/user_colors.dart';
@@ -31,15 +30,16 @@ class MapsWidget extends StatefulWidget {
 class _MapsWidgetState extends State<MapsWidget> {
   Position? currentPosition;
   Symbol? _selectedSymbol;
-
   late MapboxMapController _controller;
+
+  List<Track> tracks = [];
+  List<TrackSymbol> trackSymbols = [];
+  List<Station> stations = [];
+
   final MinMaxZoomPreference _minMaxZoomPreference =
       const MinMaxZoomPreference(14.0, 17.0);
   final _attributionRightBottom = const Point(20, 20);
   final _logoRightTop = const Point(-1000, 0);
-
-  List<Track> tracks = [];
-  List<TrackSymbol> trackSymbols = [];
 
   @override
   void initState() {
@@ -161,7 +161,41 @@ class _MapsWidgetState extends State<MapsWidget> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              StationCellBottomSheetWidget(stSymbol: stSymbol),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Image(image: AssetImage(Images.iconStationList)),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          stSymbol.name ?? 'Безымянная',
+                          style: Theme.of(context).textTheme.titleMedium,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          'Остановка общ. транспорта',
+                          style: Theme.of(context).textTheme.bodySmall,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        )
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      DBHelper.instance.updateStation(stations
+                          .where((e) => e.id == stSymbol.stationId)
+                          .first);
+                    },
+                    icon: const Icon(Icons.favorite_border),
+                  )
+                ],
+              ),
             ],
           ),
         ),
@@ -183,7 +217,42 @@ class _MapsWidgetState extends State<MapsWidget> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TrackCellBottomSheetWidget(trSymbol: trSymbol),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Image(
+                    image: AssetImage(
+                        trSymbol.vehicleType == VehicleType.TROLLEYBUS
+                            ? Images.iconTrolleybusList
+                            : Images.iconBusList),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${trSymbol.vehicleType == VehicleType.TROLLEYBUS ? 'Троллейбус' : 'Маршрутка'} ${trSymbol.route}',
+                          style: Theme.of(context).textTheme.titleMedium,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          'Остановка общ. транспорта',
+                          style: Theme.of(context).textTheme.bodySmall,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        )
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => print('add favorite'),
+                    icon: const Icon(Icons.favorite_border),
+                  )
+                ],
+              ),
             ],
           ),
         ),
@@ -201,11 +270,13 @@ class _MapsWidgetState extends State<MapsWidget> {
   /// Свойства маркера остановки
   StationSymbolOptions _getStationSymbolOptions(Station station) =>
       StationSymbolOptions(
-          geometry: LatLng(station.latitude, station.longitude),
-          iconImage: 'station',
-          iconSize: 1,
-          id: station.id,
-          name: station.name);
+        geometry: LatLng(station.latitude, station.longitude),
+        iconImage: 'station',
+        iconSize: 1,
+        id: station.id,
+        name: station.name,
+        isFavorite: station.isFavorite,
+      );
 
   /// Свойства маркера транспорта
   TrackSymbolOptions _getTrackSymbolOptions(Track track) => TrackSymbolOptions(
@@ -222,9 +293,10 @@ class _MapsWidgetState extends State<MapsWidget> {
 
   /// Добавляет символы остановок на карты, забрав необходимую инфу из БД
   void _addStationSymbols() async {
-    final stations = await DBHelper.instance.getAllStations();
+    stations = await DBHelper.instance.stations;
     final stationSymbolsOptions =
         stations.map((e) => _getStationSymbolOptions(e)).toList();
+
     _controller.addStationSymbols(stationSymbolsOptions);
   }
 

@@ -12,6 +12,16 @@ class DBHelper {
   static final DBHelper instance = DBHelper._privateConstructor();
 
   static Database? _database;
+  static List<Station>? _stations;
+  static List<Scheme>? _schemes;
+  static List<Route>? _routes;
+
+  Future<List<Station>> get stations async =>
+      _stations ?? await _getAllStations();
+
+  Future<List<Scheme>> get schemes async => _schemes ?? await _getAllSchemes();
+
+  Future<List<Route>> get routes async => _routes ?? await _getAllRoutes();
 
   Future<Database> get database async => _database ?? await _initDB();
 
@@ -29,7 +39,8 @@ class DBHelper {
 
 // Copy from asset
     ByteData data = await rootBundle.load(join('assets', 'db.db'));
-    List<int> bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+    List<int> bytes =
+        data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
     await File(path).writeAsBytes(bytes, flush: true);
 
     return _database = await openDatabase(
@@ -38,14 +49,23 @@ class DBHelper {
     );
   }
 
-  Future<List<Station>> getAllStations() async {
+  Future<List<Station>> _getAllStations() async {
     final db = await instance.database;
-
     final query = await db.query('stations');
 
-    List<Station> stations = query.isNotEmpty ? query.map((station) => Station.fromMap(station)).toList() : [];
-    print('[DB]: ${stations.length} stations fetched');
+    _stations = query.isNotEmpty
+        ? query.map((station) => Station.fromMap(station)).toList()
+        : [];
+    print('[DB]: ${_stations?.length ?? "0"} stations fetched');
+
     return stations;
+  }
+
+  Future<List<Station>> getFavoriteStations() async {
+    final db = await instance.database;
+    final query = await db.query('stations', where: 'isFavorite = 1');
+
+    return query.map((e) => Station.fromMap(e)).toList();
   }
 
   Future<Station> getDefinedStation(int id) async {
@@ -57,16 +77,19 @@ class DBHelper {
 
   Future<void> updateStation(Station station) async {
     final db = await instance.database;
-    await db.update('station', station.toMap(), where: 'id = ?', whereArgs: [station.id]);
+    await db.update('stations', station.toMap(),
+        where: 'id = ?', whereArgs: [station.id]);
   }
 
-  Future<List<Route>> getAllRoutes() async {
+  Future<List<Route>> _getAllRoutes() async {
     final db = await instance.database;
 
     final query = await db.query('routes');
 
-    List<Route> routes = query.isNotEmpty ? query.map((route) => Route.fromMap(route)).toList() : [];
-    print('[DB]: ${routes.length} routes fetched');
+    _routes = query.isNotEmpty
+        ? query.map((route) => Route.fromMap(route)).toList()
+        : [];
+    print('[DB]: ${_routes?.length ?? "0"} routes fetched');
     return routes;
   }
 
@@ -79,24 +102,30 @@ class DBHelper {
 
   Future<void> updateRoute(Route route) async {
     final db = await instance.database;
-    await db.update('routes', route.toMap(), where: 'id = ?', whereArgs: [route.id]);
+    await db.update('routes', route.toMap(),
+        where: 'id = ?', whereArgs: [route.id]);
   }
 
-  Future<List<Scheme>> getAllSchemes() async {
+  Future<List<Scheme>> _getAllSchemes() async {
     final db = await instance.database;
 
     final query = await db.query('schemes');
 
-    List<Scheme> schemes = query.isNotEmpty ? query.map((scheme) => Scheme.fromMap(scheme)).toList() : [];
-    print('[DB]: ${schemes.length} schemes fetched');
+    _schemes = query.isNotEmpty
+        ? query.map((scheme) => Scheme.fromMap(scheme)).toList()
+        : [];
+    print('[DB]: ${_schemes?.length ?? "0"} schemes fetched');
     return schemes;
   }
 
   Future<List<Scheme>> getDefinedScheme(int routeName) async {
     final db = await instance.database;
-    final query = await db.query('stations', where: 'route_name = ?', whereArgs: [routeName]);
+    final query = await db
+        .query('stations', where: 'route_name = ?', whereArgs: [routeName]);
 
-    List<Scheme> schemes = query.isNotEmpty ? query.map((scheme) => Scheme.fromMap(scheme)).toList() : [];
+    List<Scheme> schemes = query.isNotEmpty
+        ? query.map((scheme) => Scheme.fromMap(scheme)).toList()
+        : [];
 
     return schemes;
   }

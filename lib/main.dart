@@ -5,9 +5,11 @@ import 'package:transport_sterlitamaka/screens/transport_card/existing_transport
 import 'package:transport_sterlitamaka/screens/transport_card/new_transport_card_widget.dart';
 import 'package:transport_sterlitamaka/screens/transport_card/transport_card_widget.dart';
 import 'package:transport_sterlitamaka/theme/app_theme.dart';
+import 'package:transport_sterlitamaka/utils/dbhelper.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await DBHelper.instance.stations;
   runApp(const MyApp());
 }
 
