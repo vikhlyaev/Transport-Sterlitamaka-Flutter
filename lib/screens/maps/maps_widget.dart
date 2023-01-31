@@ -40,9 +40,9 @@ class _MapsWidgetState extends State<MapsWidget> {
   List<TrackSymbol> trackSymbols = [];
   List<Station> stations = [];
   List<m.Route> routes = [];
+  Line? schemeLine;
 
-  final MinMaxZoomPreference _minMaxZoomPreference =
-      const MinMaxZoomPreference(14.0, 17.0);
+  final MinMaxZoomPreference _minMaxZoomPreference = const MinMaxZoomPreference(14.0, 17.0);
   final _attributionRightBottom = const Point(20, 20);
   final _logoRightTop = const Point(-1000, 0);
 
@@ -71,8 +71,7 @@ class _MapsWidgetState extends State<MapsWidget> {
     }
     // открытие настроек для включения геолокации
     if (permission == LocationPermission.deniedForever) {
-      print(
-          '[GEO]: Location permissions are permanently denied, we cannot request permissions.');
+      print('[GEO]: Location permissions are permanently denied, we cannot request permissions.');
       await Geolocator.openLocationSettings();
       return;
     }
@@ -112,12 +111,9 @@ class _MapsWidgetState extends State<MapsWidget> {
     // 2.2. Должны менять: ротацию и координаты.
     // 3. После этого подумать над плавностью.
     for (int i = 0; i < incomingTracks.length; i++) {
-      if (incomingTracks[i] !=
-          tracks.where((e) => e.uuid == incomingTracks[i].uuid).first) {
+      if (incomingTracks[i] != tracks.where((e) => e.uuid == incomingTracks[i].uuid).first) {
         updateTrackSymbol(incomingTracks[i]);
-        tracks[tracks.indexOf(
-                tracks.where((e) => e.uuid == incomingTracks[i].uuid).first)] =
-            incomingTracks[i];
+        tracks[tracks.indexOf(tracks.where((e) => e.uuid == incomingTracks[i].uuid).first)] = incomingTracks[i];
       }
     }
   }
@@ -125,15 +121,12 @@ class _MapsWidgetState extends State<MapsWidget> {
   /// Обновляет маркер транспорта
   void updateTrackSymbol(Track incomingTrack) {
     print('[TrackUpdater]: update $incomingTrack');
-    final currentSymbol = trackSymbols
-        .where((e) => e.trackId == int.parse(incomingTrack.uuid))
-        .first;
+    final currentSymbol = trackSymbols.where((e) => e.trackId == int.parse(incomingTrack.uuid)).first;
     _controller.updateSymbol(
       currentSymbol,
       currentSymbol.options.copyWith(
         SymbolOptions(
-          geometry: LatLng(double.parse(incomingTrack.point.latitude),
-              double.parse(incomingTrack.point.longitude)),
+          geometry: LatLng(double.parse(incomingTrack.point.latitude), double.parse(incomingTrack.point.longitude)),
           iconRotate: double.parse(incomingTrack.point.direction),
         ),
       ),
@@ -144,10 +137,8 @@ class _MapsWidgetState extends State<MapsWidget> {
   /// Коллбэк на подгрузку стилей, грузит необходимые дополнительные ресурсы, устанавливает пользовательскую локацию
   void _onStyleLoaded() async {
     await addImageFromAsset('station', 'assets/images/3.0x/icon_station.png');
-    await addImageFromAsset(
-        'station-active', 'assets/images/3.0x/icon_station_active.png');
-    await addImageFromAsset(
-        'trolleybus-stu', 'assets/images/3.0x/icon_trolleybus.png');
+    await addImageFromAsset('station-active', 'assets/images/3.0x/icon_station_active.png');
+    await addImageFromAsset('trolleybus-stu', 'assets/images/3.0x/icon_trolleybus.png');
     await addImageFromAsset('bus-stu', 'assets/images/3.0x/icon_bus.png');
     _setUserLocation();
     _addStationSymbols();
@@ -157,9 +148,25 @@ class _MapsWidgetState extends State<MapsWidget> {
 
   /// Обработчик нажатий на маркеры
   void _onSymbolTapped(Symbol symbol) {
-    // TODO: make bottomsheet better
+    // Изменения к выбранному символу после выбора другой
+    if (_selectedSymbol != null) {
+      if (_selectedSymbol is StationSymbol) {
+        _controller.updateSymbol(
+          _selectedSymbol!,
+          const SymbolOptions(iconSize: 1.0, iconImage: 'station'),
+        );
+      } else {
+        _controller.updateSymbol(
+          _selectedSymbol!,
+          const SymbolOptions(iconSize: 1.0, textSize: 16),
+        );
+      }
+    }
     if (symbol is StationSymbol) {
       final stSymbol = symbol as StationSymbol;
+      _selectedSymbol = stSymbol;
+      _controller.updateSymbol(
+          stSymbol, symbol.options.copyWith(const SymbolOptions(iconSize: 0.7, iconImage: 'station-active')));
       showBottomSheet(
         context: context,
         shape: const RoundedRectangleBorder(
@@ -167,11 +174,17 @@ class _MapsWidgetState extends State<MapsWidget> {
             top: Radius.circular(10.0),
           ),
         ),
-        builder: (context) =>
-            StationBottomSheet(stSymbol: stSymbol, stations: stations),
+        builder: (context) => StationBottomSheet(stSymbol: stSymbol, stations: stations),
       );
     } else if (symbol is TrackSymbol) {
       final trSymbol = symbol as TrackSymbol;
+      final route = routes.firstWhere((e) => e.name.toString() == trSymbol.route);
+      _selectedSymbol = trSymbol;
+      _controller.updateSymbol(
+        trSymbol,
+        const SymbolOptions(iconSize: 1.5, textSize: 20),
+      );
+      _showScheme(route);
       showBottomSheet(
         context: context,
         shape: const RoundedRectangleBorder(
@@ -179,8 +192,7 @@ class _MapsWidgetState extends State<MapsWidget> {
             top: Radius.circular(10.0),
           ),
         ),
-        builder: (context) =>
-            TrackBottomSheet(trSymbol: trSymbol, routes: routes),
+        builder: (context) => TrackBottomSheet(trSymbol: trSymbol, routes: routes),
       );
     }
   }
@@ -192,35 +204,53 @@ class _MapsWidgetState extends State<MapsWidget> {
     return _controller.addImage(name, list);
   }
 
+  void _showScheme(m.Route route) async {
+    _hideScheme();
+    route.schemePoints = await DBHelper.instance.getDefinedScheme(route.name);
+    schemeLine = await _controller.addLine(
+      LineOptions(
+        lineColor: '#ff0000',
+        geometry: route.schemePoints
+            ?.map((e) => LatLng(e.pointLatitude, e.pointLongitude))
+            .toList()
+            .sublist(4, route.schemePoints!.length - 4),
+      ),
+    );
+  }
+
+  void _hideScheme() {
+    if (schemeLine != null) _controller.removeLine(schemeLine!);
+  }
+
   /// Свойства маркера остановки
-  StationSymbolOptions _getStationSymbolOptions(Station station) =>
-      StationSymbolOptions(
+  StationSymbolOptions _getStationSymbolOptions(Station station) => StationSymbolOptions(
         geometry: LatLng(station.latitude, station.longitude),
         iconImage: 'station',
         iconSize: 1,
         id: station.id,
         name: station.name,
         isFavorite: station.isFavorite,
+        zIndex: 2,
       );
 
   /// Свойства маркера транспорта
   TrackSymbolOptions _getTrackSymbolOptions(Track track) => TrackSymbolOptions(
-      geometry: LatLng(double.parse(track.point.latitude),
-          double.parse(track.point.longitude)),
-      iconImage: track.vehicleType == VehicleType.TROLLEYBUS
-          ? 'trolleybus-stu'
-          : 'bus-stu',
+      geometry: LatLng(double.parse(track.point.latitude), double.parse(track.point.longitude)),
+      iconImage: track.vehicleType == VehicleType.TROLLEYBUS ? 'trolleybus-stu' : 'bus-stu',
       iconSize: 1,
       iconRotate: double.parse(track.point.direction),
       id: int.parse(track.uuid),
       route: track.route,
-      vehicleType: track.vehicleType);
+      textField: track.route,
+      textColor: '#ffffff',
+      iconAnchor: 'center',
+      vehicleType: track.vehicleType,
+      zIndex: 3);
 
   /// Добавляет символы остановок на карты, забрав необходимую инфу из БД
   void _addStationSymbols() async {
     stations = await DBHelper.instance.stations;
-    final stationSymbolsOptions =
-        stations.map((e) => _getStationSymbolOptions(e)).toList();
+    final stationSymbolsOptions = stations.map((e) => _getStationSymbolOptions(e)).toList();
 
     _controller.addStationSymbols(stationSymbolsOptions);
   }
@@ -229,8 +259,7 @@ class _MapsWidgetState extends State<MapsWidget> {
   void _addInitialTrackSymbols() async {
     final tracksObject = await APIHelper.getInitialCoords();
     tracks = tracksObject.tracks;
-    final tracksSymbolsOptions =
-        tracks.map((e) => _getTrackSymbolOptions(e)).toList();
+    final tracksSymbolsOptions = tracks.map((e) => _getTrackSymbolOptions(e)).toList();
     trackSymbols = await _controller.addTrackSymbols(tracksSymbolsOptions);
   }
 
@@ -282,8 +311,7 @@ class _MapsWidgetState extends State<MapsWidget> {
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all(Colors.white),
                 foregroundColor: MaterialStateProperty.all(UserColors.blue),
-                overlayColor:
-                    MaterialStateProperty.all(UserColors.blue.withAlpha(20)),
+                overlayColor: MaterialStateProperty.all(UserColors.blue.withAlpha(20)),
                 padding: MaterialStateProperty.all(
                   const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 ),
@@ -311,8 +339,7 @@ class _MapsWidgetState extends State<MapsWidget> {
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all(Colors.white),
                 foregroundColor: MaterialStateProperty.all(UserColors.blue),
-                overlayColor:
-                    MaterialStateProperty.all(UserColors.blue.withAlpha(20)),
+                overlayColor: MaterialStateProperty.all(UserColors.blue.withAlpha(20)),
                 padding: MaterialStateProperty.all(
                   const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 ),
