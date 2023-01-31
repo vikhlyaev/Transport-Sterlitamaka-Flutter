@@ -12,6 +12,9 @@ import 'package:transport_sterlitamaka/models/track.dart';
 import 'package:transport_sterlitamaka/models/track_symbol.dart';
 import 'package:transport_sterlitamaka/models/track_symbol_options.dart';
 import 'package:transport_sterlitamaka/models/tracks.dart';
+import 'package:transport_sterlitamaka/resources/resources.dart';
+import 'package:transport_sterlitamaka/screens/maps/widgets/station_cell_bottom_sheet_widget.dart';
+import 'package:transport_sterlitamaka/screens/maps/widgets/track_cell_bottom_sheet_widget.dart';
 import 'package:transport_sterlitamaka/secrets.dart';
 import 'package:transport_sterlitamaka/theme/map_style.dart';
 import 'package:transport_sterlitamaka/theme/user_colors.dart';
@@ -147,19 +150,20 @@ class _MapsWidgetState extends State<MapsWidget> {
       showBottomSheet(
         context: context,
         shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20.0))),
-        builder: (context) => Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: SizedBox(
-            height: MediaQuery.of(context).size.height / 2.5,
-            child: Center(
-              child: Text(
-                'name: ${stSymbol.name} - id: ${stSymbol.stationId}',
-                style: Theme.of(context).textTheme.titleMedium,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(10.0),
+          ),
+        ),
+        builder: (context) => Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              StationCellBottomSheetWidget(stSymbol: stSymbol),
+            ],
           ),
         ),
       );
@@ -168,19 +172,20 @@ class _MapsWidgetState extends State<MapsWidget> {
       showBottomSheet(
         context: context,
         shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20.0))),
-        builder: (context) => Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: SizedBox(
-            height: MediaQuery.of(context).size.height / 2.5,
-            child: Center(
-              child: Text(
-                'route: ${trSymbol.route} - id: ${trSymbol.trackId}',
-                style: Theme.of(context).textTheme.titleMedium,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(10.0),
+          ),
+        ),
+        builder: (context) => Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TrackCellBottomSheetWidget(trSymbol: trSymbol),
+            ],
           ),
         ),
       );
@@ -220,7 +225,6 @@ class _MapsWidgetState extends State<MapsWidget> {
     final stations = await DBHelper.instance.getAllStations();
     final stationSymbolsOptions =
         stations.map((e) => _getStationSymbolOptions(e)).toList();
-
     _controller.addStationSymbols(stationSymbolsOptions);
   }
 
@@ -230,7 +234,6 @@ class _MapsWidgetState extends State<MapsWidget> {
     tracks = tracksObject.tracks;
     final tracksSymbolsOptions =
         tracks.map((e) => _getTrackSymbolOptions(e)).toList();
-
     trackSymbols = await _controller.addTrackSymbols(tracksSymbolsOptions);
   }
 
