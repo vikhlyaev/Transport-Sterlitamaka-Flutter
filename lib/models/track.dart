@@ -20,7 +20,7 @@ class Track extends Equatable {
   Track.fromMap(Map<String, dynamic> map)
       : uuid = map['uuid'],
         category = Category.S,
-        route = map['route'],
+        route = map['route'] == '433' ? '43' : map['route'],
         vehicleType = map['vehicle_type'] == 'trolleybus' ? VehicleType.TROLLEYBUS : VehicleType.BUS,
         point = TrackPoint.fromMap(map['point']);
 
