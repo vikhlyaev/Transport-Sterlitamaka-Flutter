@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:transport_sterlitamaka/theme/user_colors.dart';
 import 'package:transport_sterlitamaka/models/route.dart' as m;
+import 'package:transport_sterlitamaka/utils/navigator_provider.dart';
 
 class RouteButtonWidget extends StatelessWidget {
   final m.Route route;
@@ -13,7 +15,7 @@ class RouteButtonWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return OutlinedButton(
-      onPressed: () => print('tap route'),
+      onPressed: () {},
       child: Text(
         route.name.toString(),
         style: const TextStyle(

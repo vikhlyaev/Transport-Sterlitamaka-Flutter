@@ -13,6 +13,7 @@ import 'package:transport_sterlitamaka/models/track.dart';
 import 'package:transport_sterlitamaka/models/track_symbol.dart';
 import 'package:transport_sterlitamaka/models/track_symbol_options.dart';
 import 'package:transport_sterlitamaka/models/tracks.dart';
+import 'package:transport_sterlitamaka/resources/resources.dart';
 import 'package:transport_sterlitamaka/screens/maps/widgets/station_bottom_sheet.dart';
 import 'package:transport_sterlitamaka/screens/maps/widgets/track_bottom_sheet.dart';
 import 'package:transport_sterlitamaka/secrets.dart';
@@ -23,6 +24,7 @@ import 'package:transport_sterlitamaka/utils/dbhelper.dart';
 import 'package:transport_sterlitamaka/models/station.dart';
 import 'package:transport_sterlitamaka/models/route.dart' as m;
 import 'package:transport_sterlitamaka/utils/favorites_provider.dart';
+import 'package:transport_sterlitamaka/utils/navigator_provider.dart';
 
 class MapsWidget extends StatefulWidget {
   const MapsWidget({super.key});
@@ -97,6 +99,11 @@ class _MapsWidgetState extends State<MapsWidget> {
       }
     });
 
+    // Подписка на событие смены позиции камеры - для отцентровки выбранной станции
+    context.read<NavigatorProvider>().toCenter.stream.listen((coords) {
+      _controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: coords)));
+    });
+
     context.read<FavoritesProvider>()
       ..addStations(await DBHelper.instance.getFavoriteStations())
       ..addRoutes(await DBHelper.instance.getFavoriteRoutes());
@@ -136,11 +143,11 @@ class _MapsWidgetState extends State<MapsWidget> {
 
   /// Коллбэк на подгрузку стилей, грузит необходимые дополнительные ресурсы, устанавливает пользовательскую локацию
   void _onStyleLoaded() async {
-    await addImageFromAsset('station', 'assets/images/3.0x/icon_station.png');
-    await addImageFromAsset('station-active', 'assets/images/3.0x/icon_station_active.png');
-    await addImageFromAsset('trolleybus-stu', 'assets/images/3.0x/icon_trolleybus.png');
-    await addImageFromAsset('bus-stu', 'assets/images/3.0x/icon_bus.png');
-    _setUserLocation();
+    await addImageFromAsset('station', Images.iconStation);
+    await addImageFromAsset('station-active', Images.iconStationActive);
+    await addImageFromAsset('trolleybus-stu', Images.iconTrolleybus);
+    await addImageFromAsset('bus-stu', Images.iconBus);
+
     _addStationSymbols();
     _addInitialTrackSymbols();
     routes.addAll(await DBHelper.instance.routes);
@@ -266,17 +273,13 @@ class _MapsWidgetState extends State<MapsWidget> {
   /// Включение маркера пользовательской позиции
   void _setUserLocation() {
     if (currentPosition != null) {
-      _controller.animateCamera(CameraUpdate.newCameraPosition(
-        CameraPosition(
-          target: LatLng(
-            currentPosition!.latitude,
-            currentPosition!.longitude,
-          ),
-          zoom: 17,
-        ),
-      ));
+      context.read<NavigatorProvider>().toMapAndCenterByCoords(
+            LatLng(
+              currentPosition!.latitude,
+              currentPosition!.longitude,
+            ),
+          );
     }
-    setState(() {});
   }
 
   @override
@@ -357,3 +360,5 @@ class _MapsWidgetState extends State<MapsWidget> {
     );
   }
 }
+
+// TODO: Порефачить код

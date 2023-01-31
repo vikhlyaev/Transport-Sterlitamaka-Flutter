@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
 import 'package:transport_sterlitamaka/theme/user_colors.dart';
@@ -6,6 +7,7 @@ import 'package:transport_sterlitamaka/screens/favorites/favorites_widget.dart';
 import 'package:transport_sterlitamaka/screens/maps/maps_widget.dart';
 import 'package:transport_sterlitamaka/screens/routes/routes_widget.dart';
 import 'package:transport_sterlitamaka/screens/stations/stations_widget.dart';
+import 'package:transport_sterlitamaka/utils/navigator_provider.dart';
 
 class MainBottomBarWidget extends StatefulWidget {
   const MainBottomBarWidget({super.key});
@@ -15,21 +17,21 @@ class MainBottomBarWidget extends StatefulWidget {
 }
 
 class _MainBottomBarWidgetState extends State<MainBottomBarWidget> {
-  var _currentIndex = 0;
+  // var _currentIndex = 0;
 
-  onSelectedBar(int index) {
-    if (_currentIndex == index) return;
-    setState(() {
-      _currentIndex = index;
-    });
-  }
+  // onSelectedBar(int index) {
+  //   if (_currentIndex == index) return;
+  //   setState(() {
+  //     _currentIndex = index;
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       bottomNavigationBar: SalomonBottomBar(
-        currentIndex: _currentIndex,
-        onTap: onSelectedBar,
+        currentIndex: context.watch<NavigatorProvider>().currentIndex,
+        onTap: (index) => context.read<NavigatorProvider>().setCurrentIndex(index),
         items: [
           SalomonBottomBarItem(
             icon: const Icon(Icons.map),
@@ -54,13 +56,8 @@ class _MainBottomBarWidgetState extends State<MainBottomBarWidget> {
         ],
       ),
       body: IndexedStack(
-        index: _currentIndex,
-        children: const <Widget>[
-          MapsWidget(),
-          StationsWidget(),
-          RoutesWidget(),
-          FavoritesWidget()
-        ],
+        index: context.watch<NavigatorProvider>().currentIndex,
+        children: const <Widget>[MapsWidget(), StationsWidget(), RoutesWidget(), FavoritesWidget()],
       ),
     );
   }

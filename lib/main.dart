@@ -8,6 +8,7 @@ import 'package:transport_sterlitamaka/screens/transport_card/transport_card_wid
 import 'package:transport_sterlitamaka/theme/app_theme.dart';
 import 'package:transport_sterlitamaka/utils/dbhelper.dart';
 import 'package:transport_sterlitamaka/utils/favorites_provider.dart';
+import 'package:transport_sterlitamaka/utils/navigator_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,19 +24,22 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => FavoritesProvider(),
-      child: MaterialApp(
-        title: 'Транспорт Стерлитамака',
-        theme: AppTheme().light,
-        routes: {
-          '/': (context) => const MainBottomBarWidget(),
-          '/card': (context) => const TransportCardWidget(),
-          '/add-card': (context) => const AddTransportCardWidget(),
-          '/add-card/new': (context) => const NewTransportCardWidget(),
-          '/add-card/existing': (context) => const ExistingTransportCardWidget(),
-        },
-        initialRoute: '/',
-        debugShowCheckedModeBanner: false,
+      create: (context) => NavigatorProvider(),
+      child: ChangeNotifierProvider(
+        create: (context) => FavoritesProvider(),
+        child: MaterialApp(
+          title: 'Транспорт Стерлитамака',
+          theme: AppTheme().light,
+          routes: {
+            '/': (context) => const MainBottomBarWidget(),
+            '/card': (context) => const TransportCardWidget(),
+            '/add-card': (context) => const AddTransportCardWidget(),
+            '/add-card/new': (context) => const NewTransportCardWidget(),
+            '/add-card/existing': (context) => const ExistingTransportCardWidget(),
+          },
+          initialRoute: '/',
+          debugShowCheckedModeBanner: false,
+        ),
       ),
     );
   }

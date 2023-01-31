@@ -16,11 +16,9 @@ class DBHelper {
   static List<SchemePoint>? _schemes;
   static List<Route>? _routes;
 
-  Future<List<Station>> get stations async =>
-      _stations ?? await _getAllStations();
+  Future<List<Station>> get stations async => _stations ?? await _getAllStations();
 
-  Future<List<SchemePoint>> get schemes async =>
-      _schemes ?? await _getAllSchemes();
+  Future<List<SchemePoint>> get schemes async => _schemes ?? await _getAllSchemes();
 
   Future<List<Route>> get routes async => _routes ?? await _getAllRoutes();
 
@@ -37,8 +35,7 @@ class DBHelper {
       } catch (_) {}
 
       ByteData data = await rootBundle.load(join('assets', 'db.db'));
-      List<int> bytes =
-          data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+      List<int> bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
       await File(path).writeAsBytes(bytes, flush: true);
     }
 
@@ -52,9 +49,7 @@ class DBHelper {
     final db = await instance.database;
     final query = await db.query('stations');
 
-    _stations = query.isNotEmpty
-        ? query.map((station) => Station.fromMap(station)).toList()
-        : [];
+    _stations = query.isNotEmpty ? query.map((station) => Station.fromMap(station)).toList() : [];
     print('[DB]: ${_stations?.length ?? "0"} stations fetched');
 
     return stations;
@@ -76,8 +71,7 @@ class DBHelper {
 
   Future<void> updateStation(Station station) async {
     final db = await instance.database;
-    await db.update('stations', station.toMap(),
-        where: 'id = ?', whereArgs: [station.id]);
+    await db.update('stations', station.toMap(), where: 'id = ?', whereArgs: [station.id]);
   }
 
   Future<List<Route>> _getAllRoutes() async {
@@ -85,9 +79,7 @@ class DBHelper {
 
     final query = await db.query('routes');
 
-    _routes = query.isNotEmpty
-        ? query.map((route) => Route.fromMap(route)).toList()
-        : [];
+    _routes = query.isNotEmpty ? query.map((route) => Route.fromMap(route)).toList() : [];
     print('[DB]: ${_routes?.length ?? "0"} routes fetched');
     return routes;
   }
@@ -101,8 +93,7 @@ class DBHelper {
 
   Future<void> updateRoute(Route route) async {
     final db = await instance.database;
-    await db.update('routes', route.toMap(),
-        where: 'id = ?', whereArgs: [route.id]);
+    await db.update('routes', route.toMap(), where: 'id = ?', whereArgs: [route.id]);
   }
 
   Future<List<Route>> getFavoriteRoutes() async {
@@ -117,21 +108,16 @@ class DBHelper {
 
     final query = await db.query('schemes');
 
-    _schemes = query.isNotEmpty
-        ? query.map((scheme) => SchemePoint.fromMap(scheme)).toList()
-        : [];
+    _schemes = query.isNotEmpty ? query.map((scheme) => SchemePoint.fromMap(scheme)).toList() : [];
     print('[DB]: ${_schemes?.length ?? "0"} schemes fetched');
     return schemes;
   }
 
   Future<List<SchemePoint>> getDefinedScheme(int routeName) async {
     final db = await instance.database;
-    final query = await db
-        .query('stations', where: 'route_name = ?', whereArgs: [routeName]);
+    final query = await db.query('schemes', where: 'route_name = ?', whereArgs: [routeName]);
 
-    List<SchemePoint> schemes = query.isNotEmpty
-        ? query.map((scheme) => SchemePoint.fromMap(scheme)).toList()
-        : [];
+    List<SchemePoint> schemes = query.isNotEmpty ? query.map((scheme) => SchemePoint.fromMap(scheme)).toList() : [];
 
     return schemes;
   }
