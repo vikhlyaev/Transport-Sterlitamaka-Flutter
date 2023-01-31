@@ -1,15 +1,15 @@
-class Scheme {
+class SchemePoint {
   int routeName;
   double pointLatitude;
   double pointLongitude;
 
-  Scheme({
+  SchemePoint({
     required this.routeName,
     required this.pointLatitude,
     required this.pointLongitude,
   });
 
-  Scheme.fromMap(Map<String, dynamic> scheme)
+  SchemePoint.fromMap(Map<String, dynamic> scheme)
       : routeName = scheme['route_name'] as int,
         pointLatitude = scheme['point_latitude'] as double,
         pointLongitude = scheme['point_longitude'] as double;

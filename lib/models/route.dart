@@ -28,7 +28,5 @@ class Route {
     };
   }
 
-  List<String> get desc {
-    return descId.split(' - ');
-  }
+  List<String> get desc => descId.split(' - ');
 }
