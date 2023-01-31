@@ -3,6 +3,7 @@ class Station {
   double latitude;
   double longitude;
   String name;
+  String desc;
   int isFavorite;
 
   Station({
@@ -10,6 +11,7 @@ class Station {
     required this.latitude,
     required this.longitude,
     required this.name,
+    required this.desc,
     required this.isFavorite,
   });
 
@@ -18,6 +20,7 @@ class Station {
         latitude = station['latitude'] as double,
         longitude = station['longitude'] as double,
         name = station['name'] as String,
+        desc = station['desc'] as String,
         isFavorite = station['isFavorite'];
 
   Map<String, dynamic> toMap() {
@@ -26,6 +29,7 @@ class Station {
       'latitude': latitude,
       'longitude': longitude,
       'name': name,
+      'desc': desc,
       'isFavorite': isFavorite,
     };
   }

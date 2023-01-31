@@ -24,7 +24,8 @@ class StationCellWidget extends StatelessWidget {
         InkWell(
           onTap: () {
             context.read<NavigatorProvider>().setCurrentIndex(0);
-            context.read<NavigatorProvider>().toMapAndCenterByCoords(LatLng(station.latitude, station.longitude));
+            context.read<NavigatorProvider>().toMapAndCenterByCoords(
+                LatLng(station.latitude, station.longitude));
           },
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 16),
@@ -44,7 +45,7 @@ class StationCellWidget extends StatelessWidget {
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      'в сторону ул. Гоголя',
+                      station.desc,
                       style: Theme.of(context).textTheme.bodySmall,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
