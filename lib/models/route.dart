@@ -1,9 +1,11 @@
+import 'package:transport_sterlitamaka/models/scheme_point.dart';
 import 'package:transport_sterlitamaka/models/station.dart';
 
 class Route {
   int id;
   int name;
   String descId;
+  List<SchemePoint>? schemePoints;
   int isFavorite;
 
   Route({
