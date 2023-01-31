@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:transport_sterlitamaka/models/enums.dart';
 import 'package:transport_sterlitamaka/models/track_symbol.dart';
 import 'package:transport_sterlitamaka/resources/resources.dart';
 
@@ -22,14 +23,19 @@ class _TrackCellBottomSheetWidgetState
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const Image(image: AssetImage(Images.iconStationList)),
+        Image(
+          image: AssetImage(
+              widget.trSymbol.vehicleType == VehicleType.TROLLEYBUS
+                  ? Images.iconTrolleybusList
+                  : Images.iconBusList),
+        ),
         const SizedBox(width: 16),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Троллейбус ${widget.trSymbol.route}',
+                '${widget.trSymbol.vehicleType == VehicleType.TROLLEYBUS ? 'Троллейбус' : 'Маршрутка'} ${widget.trSymbol.route}',
                 style: Theme.of(context).textTheme.titleMedium,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,

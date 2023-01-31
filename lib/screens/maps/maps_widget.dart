@@ -12,7 +12,6 @@ import 'package:transport_sterlitamaka/models/track.dart';
 import 'package:transport_sterlitamaka/models/track_symbol.dart';
 import 'package:transport_sterlitamaka/models/track_symbol_options.dart';
 import 'package:transport_sterlitamaka/models/tracks.dart';
-import 'package:transport_sterlitamaka/resources/resources.dart';
 import 'package:transport_sterlitamaka/screens/maps/widgets/station_cell_bottom_sheet_widget.dart';
 import 'package:transport_sterlitamaka/screens/maps/widgets/track_cell_bottom_sheet_widget.dart';
 import 'package:transport_sterlitamaka/secrets.dart';
@@ -218,7 +217,8 @@ class _MapsWidgetState extends State<MapsWidget> {
       iconSize: 1,
       iconRotate: double.parse(track.point.direction),
       id: int.parse(track.uuid),
-      route: track.route);
+      route: track.route,
+      vehicleType: track.vehicleType);
 
   /// Добавляет символы остановок на карты, забрав необходимую инфу из БД
   void _addStationSymbols() async {

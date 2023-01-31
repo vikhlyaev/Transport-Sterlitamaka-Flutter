@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:transport_sterlitamaka/models/enums.dart';
 
 class TrackSymbolOptions extends SymbolOptions {
   final int id;
   final String route;
+  final VehicleType vehicleType;
 
   TrackSymbolOptions({
     String? iconImage,
@@ -36,6 +38,7 @@ class TrackSymbolOptions extends SymbolOptions {
     bool? draggable,
     required this.id,
     required this.route,
+    required this.vehicleType,
   }) : super(
           iconSize: iconSize,
           geometry: geometry,
