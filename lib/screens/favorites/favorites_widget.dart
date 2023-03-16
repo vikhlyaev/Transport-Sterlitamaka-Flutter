@@ -10,11 +10,12 @@ class FavoritesWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final favoriteStations = context.watch<FavoritesProvider>().favoriteStations;
+    final favoriteStations =
+        context.watch<FavoritesProvider>().favoriteStations;
     final favoriteRoutes = context.watch<FavoritesProvider>().favoriteRoutes;
 
-    SliverGridDelegate delegate =
-        const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 5, crossAxisSpacing: 16, mainAxisSpacing: 16);
+    const delegate = SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 5, crossAxisSpacing: 16, mainAxisSpacing: 16);
 
     return Scaffold(
       appBar: AppBar(
@@ -22,7 +23,6 @@ class FavoritesWidget extends StatelessWidget {
         title: const Text('Избранное'),
       ),
       body: ListView(
-        scrollDirection: Axis.vertical,
         padding: const EdgeInsets.all(16.0),
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         children: [
@@ -32,7 +32,6 @@ class FavoritesWidget extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           ListView.builder(
-            scrollDirection: Axis.vertical,
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             physics: const NeverScrollableScrollPhysics(),
             shrinkWrap: true,
@@ -55,7 +54,8 @@ class FavoritesWidget extends StatelessWidget {
             physics: const NeverScrollableScrollPhysics(),
             shrinkWrap: true,
             itemCount: favoriteRoutes.length,
-            itemBuilder: (context, index) => RouteButtonWidget(route: favoriteRoutes[index]),
+            itemBuilder: (context, index) =>
+                RouteButtonWidget(route: favoriteRoutes[index]),
           ),
         ],
       ),
