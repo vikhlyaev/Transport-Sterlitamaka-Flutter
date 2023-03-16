@@ -1,5 +1,6 @@
 import 'package:mapbox_gl/mapbox_gl.dart';
 
+/// [StationSymbol] - объектное представление символа остановки.
 class StationSymbol extends Symbol {
   StationSymbol(
       super.id, super.options, this.stationId, this.name, this.isFavorite,
@@ -9,6 +10,7 @@ class StationSymbol extends Symbol {
   String? name;
   int? isFavorite;
 
-  final Map? _data;
-  Map? get data => _data;
+  final Map<String, dynamic>? _data;
+  @override
+  Map<String, dynamic>? get data => _data;
 }

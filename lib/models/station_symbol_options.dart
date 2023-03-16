@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 
+/// [StationSymbolOptions] - конфигурационный класс для символа остановки [StationSymbol].
 class StationSymbolOptions extends SymbolOptions {
   final int id;
   final String name;

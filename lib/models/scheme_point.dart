@@ -1,3 +1,5 @@
+/// [SchemePoint] - объектное представление точки маршрута,
+/// которые в будущем объединятся в схему определенного маршрута [Route].
 class SchemePoint {
   int routeName;
   double pointLatitude;

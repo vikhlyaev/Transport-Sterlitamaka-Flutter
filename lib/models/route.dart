@@ -1,6 +1,6 @@
 import 'package:transport_sterlitamaka/models/scheme_point.dart';
-import 'package:transport_sterlitamaka/models/station.dart';
 
+/// [Route] - объектное представление маршрута.
 class Route {
   int id;
   int name;
@@ -19,7 +19,7 @@ class Route {
       : id = route['id'] as int,
         name = route['name'] as int,
         descId = route['desc_id'] as String,
-        isFavorite = route['isFavorite'];
+        isFavorite = route['isFavorite'] as int;
 
   Map<String, dynamic> toMap() {
     return {

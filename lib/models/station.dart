@@ -1,3 +1,4 @@
+/// [Station] - объектное представление транспортной остановки.
 class Station {
   int id;
   double latitude;
@@ -21,7 +22,7 @@ class Station {
         longitude = station['longitude'] as double,
         name = station['name'] as String,
         desc = station['desc'] as String,
-        isFavorite = station['isFavorite'];
+        isFavorite = station['isFavorite'] as int;
 
   Map<String, dynamic> toMap() {
     return {

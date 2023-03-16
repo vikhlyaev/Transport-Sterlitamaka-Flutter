@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:transport_sterlitamaka/models/enums.dart';
 
+/// [TrackSymbolOptions] - объект, представляющий конфигурации транспортного символа [TrackSymbol].
 class TrackSymbolOptions extends SymbolOptions {
   final int id;
   final String route;
