@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => NavigatorProvider(),
       child: ChangeNotifierProvider(
-        create: (context) => FavoritesProvider(),
+        create: (context) => FavoritesProvider(db: DBHelper.instance),
         child: MaterialApp(
           title: 'Транспорт Стерлитамака',
           theme: AppTheme().light,
@@ -35,7 +35,8 @@ class MyApp extends StatelessWidget {
             '/card': (context) => const TransportCardWidget(),
             '/add-card': (context) => const AddTransportCardWidget(),
             '/add-card/new': (context) => const NewTransportCardWidget(),
-            '/add-card/existing': (context) => const ExistingTransportCardWidget(),
+            '/add-card/existing': (context) =>
+                const ExistingTransportCardWidget(),
           },
           initialRoute: '/',
           debugShowCheckedModeBanner: false,
