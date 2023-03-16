@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:transport_sterlitamaka/models/station.dart';
 import 'package:transport_sterlitamaka/screens/stations/widgets/station_cell_widget.dart';
 import 'package:transport_sterlitamaka/utils/dbhelper.dart';
 
@@ -13,6 +14,32 @@ class StationsWidget extends StatefulWidget {
 class _StationsWidgetState extends State<StationsWidget> {
   final _searchController = TextEditingController();
 
+  late Future<List<Station>> _stations;
+  late Future<List<Station>> _filteredStation;
+
+  @override
+  void initState() {
+    _stations = DBHelper.instance.stations;
+    _filteredStation = _stations;
+    _searchController.addListener(_searchStation);
+    super.initState();
+  }
+
+  void _searchStation() async {
+    final query = _searchController.text;
+    final allStations = await _stations;
+
+    setState(() {
+      if (query.isNotEmpty) {
+        _filteredStation = Future.value(allStations.where((station) {
+          return station.name.toLowerCase().contains(query.toLowerCase());
+        }).toList());
+      } else {
+        _filteredStation = Future.value(allStations);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,7 +47,7 @@ class _StationsWidgetState extends State<StationsWidget> {
         title: const Text('Остановки'),
       ),
       body: FutureBuilder(
-        future: DBHelper.instance.stations,
+        future: _filteredStation,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             return Padding(
@@ -28,7 +55,6 @@ class _StationsWidgetState extends State<StationsWidget> {
               child: Stack(
                 children: [
                   ListView.builder(
-                    scrollDirection: Axis.vertical,
                     padding: const EdgeInsets.only(top: 65),
                     keyboardDismissBehavior:
                         ScrollViewKeyboardDismissBehavior.onDrag,

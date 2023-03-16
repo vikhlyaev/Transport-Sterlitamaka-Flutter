@@ -11,7 +11,6 @@ class TransactionsCellWidget extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const Image(image: AssetImage(Images.iconExpense)),
           const SizedBox(width: 16),
@@ -20,7 +19,7 @@ class TransactionsCellWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '− 30 ₽',
+                  '− 19 ₽',
                   style: Theme.of(context).textTheme.titleMedium,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,

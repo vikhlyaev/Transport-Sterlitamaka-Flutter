@@ -7,20 +7,30 @@ import 'package:transport_sterlitamaka/utils/navigator_provider.dart';
 
 class StationCellWidget extends StatelessWidget {
   final Station station;
+  bool isBottomSheet;
 
-  const StationCellWidget({
+  StationCellWidget({
     required this.station,
+    this.isBottomSheet = false,
     Key? key,
   }) : super(key: key);
+
+  StationCellWidget.bottomSheet(
+      {required this.station, this.isBottomSheet = true, Key? key})
+      : super(key: key);
+
+  Widget get leading {
+    if (isBottomSheet) {
+      return const SizedBox(width: 10);
+    } else {
+      return const Image(image: AssetImage(Images.iconStationList));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const Divider(
-          color: Color(0xFFD9D9D9),
-          height: 1,
-        ),
         InkWell(
           onTap: () {
             context.read<NavigatorProvider>().setCurrentIndex(0);
@@ -30,9 +40,8 @@ class StationCellWidget extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 16),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Image(image: AssetImage(Images.iconStationList)),
+                leading,
                 const SizedBox(width: 16),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,6 +64,10 @@ class StationCellWidget extends StatelessWidget {
               ],
             ),
           ),
+        ),
+        const Divider(
+          color: Color(0xFFD9D9D9),
+          height: 1,
         ),
       ],
     );

@@ -1,10 +1,55 @@
+import 'dart:developer' as d;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transport_sterlitamaka/resources/resources.dart';
+import 'package:transport_sterlitamaka/secrets.dart';
 import 'package:transport_sterlitamaka/theme/user_colors.dart';
 
-class ExistingTransportCardWidget extends StatelessWidget {
+class ExistingTransportCardWidget extends StatefulWidget {
   const ExistingTransportCardWidget({super.key});
+
+  @override
+  State<ExistingTransportCardWidget> createState() =>
+      _ExistingTransportCardWidgetState();
+}
+
+class _ExistingTransportCardWidgetState
+    extends State<ExistingTransportCardWidget> {
+  final _controller = TextEditingController();
+  String? _errorText = null;
+
+  bool validateTransportCardNumber() {
+    final cardNumber = _controller.text;
+
+    // ignore: avoid_bool_literals_in_conditional_expressions
+    return (cardNumber.length == 8 && cardNumber == Secrets.CORRECT_CARD_NUMBER)
+        ? true
+        : false;
+  }
+
+  Future<bool> saveCardNumber(String cardNumber) async {
+    final preferences = await SharedPreferences.getInstance();
+    return preferences.setString(Secrets.CARD_NUMBER_KEY, cardNumber);
+  }
+
+  void addCardButtonPressed() {
+    if (validateTransportCardNumber()) {
+      saveCardNumber(_controller.text);
+      Navigator.of(context).popAndPushNamed('/');
+    } else {
+      setState(() {
+        _errorText = 'Такой карты не существует';
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,15 +63,17 @@ class ExistingTransportCardWidget extends StatelessWidget {
           Column(
             children: [
               TextField(
+                controller: _controller,
                 inputFormatters: [
                   UpperCaseTextFormatter(),
                   LengthLimitingTextInputFormatter(8),
                 ],
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
+                  errorText: _errorText,
                   hintText: 'Введите ID карты',
                   labelText: 'ID карты',
                   contentPadding:
-                      EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
                 ),
                 style: const TextStyle(
                   fontWeight: FontWeight.normal,
@@ -78,7 +125,7 @@ class ExistingTransportCardWidget extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () => print('existing'),
+                  onPressed: addCardButtonPressed,
                   child: const Text('Добавить карту'),
                 ),
               ),

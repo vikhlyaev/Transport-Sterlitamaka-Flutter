@@ -20,7 +20,6 @@ class AddTransportCardWidget extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 30),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: const [
                     Icon(Icons.add_card),
                     SizedBox(height: 4),
@@ -36,7 +35,6 @@ class AddTransportCardWidget extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 30),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: const [
                     Icon(Icons.add_card),
                     SizedBox(height: 4),

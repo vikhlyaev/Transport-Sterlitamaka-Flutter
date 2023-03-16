@@ -69,11 +69,10 @@ class TransportCardWidget extends StatelessWidget {
             const SizedBox(height: 8),
             Expanded(
               child: ListView.separated(
-                scrollDirection: Axis.vertical,
                 shrinkWrap: true,
                 keyboardDismissBehavior:
                     ScrollViewKeyboardDismissBehavior.onDrag,
-                itemCount: 10,
+                itemCount: 4,
                 itemBuilder: (context, index) {
                   return const TransactionsCellWidget();
                 },

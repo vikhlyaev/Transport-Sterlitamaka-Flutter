@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:transport_sterlitamaka/theme/user_colors.dart';
 import 'package:transport_sterlitamaka/models/route.dart' as m;
+import 'package:transport_sterlitamaka/theme/user_colors.dart';
 import 'package:transport_sterlitamaka/utils/navigator_provider.dart';
 
 class RouteButtonWidget extends StatelessWidget {
@@ -15,7 +15,14 @@ class RouteButtonWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return OutlinedButton(
-      onPressed: () {},
+      style: Theme.of(context).outlinedButtonTheme.style!.copyWith(
+            backgroundColor: MaterialStatePropertyAll(
+                context.watch<NavigatorProvider>().currentRoute == route.name
+                    ? UserColors.blue.withOpacity(0.7)
+                    : Colors.white),
+          ),
+      onPressed: () =>
+          context.read<NavigatorProvider>().toMapAndShowDefinedRoute(route),
       child: Text(
         route.name.toString(),
         style: const TextStyle(
@@ -25,28 +32,4 @@ class RouteButtonWidget extends StatelessWidget {
       ),
     );
   }
-
-  // @override
-  // Widget build(BuildContext context) {
-  //   return Container(
-  //     decoration: BoxDecoration(
-  //         border: Border.all(
-  //           color: UserColors.blue,
-  //           style: BorderStyle.solid,
-  //           width: 2.0,
-  //         ),
-  //         borderRadius: BorderRadius.circular(4)),
-  //     height: 60,
-  //     width: 60,
-  //     child: const Center(
-  //       child: Text(
-  //         '1',
-  //         style: TextStyle(
-  //           fontSize: 24,
-  //           color: UserColors.blue,
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
 }

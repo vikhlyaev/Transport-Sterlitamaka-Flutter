@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:transport_sterlitamaka/screens/routes/widgets/route_button_widget.dart';
-import 'package:transport_sterlitamaka/utils/apihelper.dart';
 import 'package:transport_sterlitamaka/utils/dbhelper.dart';
 
 class RoutesWidget extends StatelessWidget {
@@ -9,8 +8,8 @@ class RoutesWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    SliverGridDelegate delegate =
-        const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 5, crossAxisSpacing: 16, mainAxisSpacing: 16);
+    const delegate = SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 5, crossAxisSpacing: 16, mainAxisSpacing: 16);
 
     return Scaffold(
       appBar: AppBar(
@@ -20,10 +19,10 @@ class RoutesWidget extends StatelessWidget {
         future: DBHelper.instance.routes,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            final trolleybuses = snapshot.data!.where((e) => e.name < 30).toList();
+            final trolleybuses =
+                snapshot.data!.where((e) => e.name < 30).toList();
             final buses = snapshot.data!.where((e) => e.name > 30).toList();
             return ListView(
-              scrollDirection: Axis.vertical,
               padding: const EdgeInsets.all(16.0),
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               children: [
@@ -37,7 +36,8 @@ class RoutesWidget extends StatelessWidget {
                   shrinkWrap: true,
                   gridDelegate: delegate,
                   itemCount: trolleybuses.length,
-                  itemBuilder: (context, index) => RouteButtonWidget(route: trolleybuses[index]),
+                  itemBuilder: (context, index) =>
+                      RouteButtonWidget(route: trolleybuses[index]),
                 ),
                 const SizedBox(height: 32),
                 Text(
@@ -50,7 +50,8 @@ class RoutesWidget extends StatelessWidget {
                   shrinkWrap: true,
                   gridDelegate: delegate,
                   itemCount: buses.length,
-                  itemBuilder: (context, index) => RouteButtonWidget(route: buses[index]),
+                  itemBuilder: (context, index) =>
+                      RouteButtonWidget(route: buses[index]),
                 ),
               ],
             );
