@@ -1,0 +1,436 @@
+@startuml
+set namespaceSeparator ::
+
+class "transport_sterlitamaka::resources::resources.dart::Images" {
+  {static} +String card
+  {static} +String iconBus
+  {static} +String iconBusList
+  {static} +String iconExpense
+  {static} +String iconIncome
+  {static} +String iconStation
+  {static} +String iconStationActive
+  {static} +String iconStationList
+  {static} +String iconTrolleybus
+  {static} +String iconTrolleybusList
+}
+
+class "transport_sterlitamaka::utils::apihelper.dart::APIHelperException" {
+  +String cause
+}
+
+"dart::core::Exception" <|-- "transport_sterlitamaka::utils::apihelper.dart::APIHelperException"
+
+abstract class "transport_sterlitamaka::utils::apihelper.dart::APIHelper" {
+  {static} -BaseOptions _options
+  {static} -Dio _dio
+  {static} -IOWebSocketChannel? _socket
+  {static} +Future<Tracks> getInitialCoords()
+  {static} +Stream<dynamic>? webSocketStream()
+  {static} +Future<void> closeConnection()
+}
+
+"transport_sterlitamaka::utils::apihelper.dart::APIHelper" o-- "dio::src::options.dart::BaseOptions"
+"transport_sterlitamaka::utils::apihelper.dart::APIHelper" o-- "dio::src::dio.dart::Dio"
+"transport_sterlitamaka::utils::apihelper.dart::APIHelper" o-- "web_socket_channel::io.dart::IOWebSocketChannel"
+
+class "transport_sterlitamaka::utils::navigator_provider.dart::NavigatorProvider" {
+  -int _currentIndex
+  -int _currentRoute
+  +StreamController<LatLng> toCenter
+  +StreamController<int> definedRoute
+  +int currentIndex
+  +int currentRoute
+  +void setCurrentIndex()
+  +void toMapAndCenterByCoords()
+  +void toMapAndShowDefinedRoute()
+}
+
+"transport_sterlitamaka::utils::navigator_provider.dart::NavigatorProvider" o-- "dart::async::StreamController<LatLng>"
+"transport_sterlitamaka::utils::navigator_provider.dart::NavigatorProvider" o-- "dart::async::StreamController<int>"
+"flutter::src::foundation::change_notifier.dart::ChangeNotifier" <|-- "transport_sterlitamaka::utils::navigator_provider.dart::NavigatorProvider"
+
+class "transport_sterlitamaka::utils::favorites_provider.dart::FavoritesProvider" {
+  +List<Station> favoriteStations
+  +List<Route> favoriteRoutes
+  +DBHelper? db
+  +void addStations()
+  +void addStation()
+  +void removeStation()
+  +void addRoute()
+  +void removeRoute()
+  +void addRoutes()
+}
+
+"transport_sterlitamaka::utils::favorites_provider.dart::FavoritesProvider" o-- "transport_sterlitamaka::utils::dbhelper.dart::DBHelper"
+"flutter::src::foundation::change_notifier.dart::ChangeNotifier" <|-- "transport_sterlitamaka::utils::favorites_provider.dart::FavoritesProvider"
+
+class "transport_sterlitamaka::utils::dbhelper.dart::DBHelper" {
+  {static} +DBHelper instance
+  {static} -Database? _database
+  {static} -List<Station>? _stations
+  {static} -List<SchemePoint>? _schemes
+  {static} -List<Route>? _routes
+  +Future<List<Station>> stations
+  +Future<List<SchemePoint>> schemes
+  +Future<List<Route>> routes
+  +Future<Database> database
+  -Future<Database> _initDB()
+  -Future<List<Station>> _getAllStations()
+  +Future<List<Station>> getFavoriteStations()
+  +Future<Station> getDefinedStation()
+  +Future<void> updateStation()
+  -Future<List<Route>> _getAllRoutes()
+  +Future<Route> getDefinedRoute()
+  +Future<void> updateRoute()
+  +Future<List<Route>> getFavoriteRoutes()
+  -Future<List<SchemePoint>> _getAllSchemes()
+  +Future<List<SchemePoint>> getDefinedScheme()
+}
+
+"transport_sterlitamaka::utils::dbhelper.dart::DBHelper" o-- "transport_sterlitamaka::utils::dbhelper.dart::DBHelper"
+"transport_sterlitamaka::utils::dbhelper.dart::DBHelper" o-- "sqflite_common::sqlite_api.dart::Database"
+
+class "transport_sterlitamaka::models::track_point.dart::TrackPoint" {
+  +String latitude
+  +String longitude
+  +String avgSpeed
+  +String direction
+  +String time
+  +List<Object?> props
+  +Map<String, dynamic> toMap()
+  +String toString()
+}
+
+"equatable::src::equatable.dart::Equatable" <|-- "transport_sterlitamaka::models::track_point.dart::TrackPoint"
+
+class "transport_sterlitamaka::models::track.dart::Track" {
+  +String uuid
+  +Category category
+  +String route
+  +VehicleType vehicleType
+  +TrackPoint point
+  +List<Object?> props
+  +Map<String, dynamic> toMap()
+  +String toString()
+}
+
+"transport_sterlitamaka::models::track.dart::Track" o-- "transport_sterlitamaka::models::enums.dart::Category"
+"transport_sterlitamaka::models::track.dart::Track" o-- "transport_sterlitamaka::models::enums.dart::VehicleType"
+"transport_sterlitamaka::models::track.dart::Track" o-- "transport_sterlitamaka::models::track_point.dart::TrackPoint"
+"equatable::src::equatable.dart::Equatable" <|-- "transport_sterlitamaka::models::track.dart::Track"
+
+class "transport_sterlitamaka::models::enums.dart::Category" {
+  +int index
+  {static} +List<Category> values
+  {static} +Category S
+}
+
+"transport_sterlitamaka::models::enums.dart::Category" o-- "transport_sterlitamaka::models::enums.dart::Category"
+"dart::core::Enum" <|-- "transport_sterlitamaka::models::enums.dart::Category"
+
+class "transport_sterlitamaka::models::enums.dart::VehicleType" {
+  +int index
+  {static} +List<VehicleType> values
+  {static} +VehicleType TROLLEYBUS
+  {static} +VehicleType BUS
+}
+
+"transport_sterlitamaka::models::enums.dart::VehicleType" o-- "transport_sterlitamaka::models::enums.dart::VehicleType"
+"dart::core::Enum" <|-- "transport_sterlitamaka::models::enums.dart::VehicleType"
+
+class "transport_sterlitamaka::models::track_symbol_options.dart::TrackSymbolOptions" {
+  +int id
+  +String route
+  +VehicleType vehicleType
+}
+
+"transport_sterlitamaka::models::track_symbol_options.dart::TrackSymbolOptions" o-- "transport_sterlitamaka::models::enums.dart::VehicleType"
+"mapbox_gl_platform_interface::mapbox_gl_platform_interface.dart::SymbolOptions" <|-- "transport_sterlitamaka::models::track_symbol_options.dart::TrackSymbolOptions"
+
+class "transport_sterlitamaka::models::station_symbol.dart::StationSymbol" {
+  +int? stationId
+  +String? name
+  +int? isFavorite
+  -Map<String, dynamic>? _data
+  +Map<String, dynamic>? data
+}
+
+"mapbox_gl_platform_interface::mapbox_gl_platform_interface.dart::Symbol" <|-- "transport_sterlitamaka::models::station_symbol.dart::StationSymbol"
+
+class "transport_sterlitamaka::models::track_symbol.dart::TrackSymbol" {
+  +int? trackId
+  +String? route
+  +VehicleType? vehicleType
+  -Map<String, dynamic>? _data
+  +Map<String, dynamic>? data
+}
+
+"transport_sterlitamaka::models::track_symbol.dart::TrackSymbol" o-- "transport_sterlitamaka::models::enums.dart::VehicleType"
+"mapbox_gl_platform_interface::mapbox_gl_platform_interface.dart::Symbol" <|-- "transport_sterlitamaka::models::track_symbol.dart::TrackSymbol"
+
+class "transport_sterlitamaka::models::route.dart::Route" {
+  +int id
+  +int name
+  +String descId
+  +List<SchemePoint>? schemePoints
+  +int isFavorite
+  +List<String> desc
+  +Map<String, dynamic> toMap()
+  +String toString()
+}
+
+class "transport_sterlitamaka::models::station.dart::Station" {
+  +int id
+  +double latitude
+  +double longitude
+  +String name
+  +String desc
+  +int isFavorite
+  +Map<String, dynamic> toMap()
+}
+
+class "transport_sterlitamaka::models::scheme_point.dart::SchemePoint" {
+  +int routeName
+  +double pointLatitude
+  +double pointLongitude
+  +Map<String, dynamic> toMap()
+}
+
+class "transport_sterlitamaka::models::station_symbol_options.dart::StationSymbolOptions" {
+  +int id
+  +String name
+  +int isFavorite
+}
+
+"mapbox_gl_platform_interface::mapbox_gl_platform_interface.dart::SymbolOptions" <|-- "transport_sterlitamaka::models::station_symbol_options.dart::StationSymbolOptions"
+
+class "transport_sterlitamaka::models::tracks.dart::Tracks" {
+  +String clid
+  +List<Track> tracks
+  +Map<String, dynamic> toMap()
+}
+
+class "transport_sterlitamaka::extensions::animate_symbol_extension.dart::LatLngTween" {
+  +LatLng lerp()
+}
+
+"flutter::src::animation::tween.dart::Tween" <|-- "transport_sterlitamaka::extensions::animate_symbol_extension.dart::LatLngTween"
+
+class "transport_sterlitamaka::screens::maps::maps_widget.dart::MapsWidget" {
+  +State<MapsWidget> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "transport_sterlitamaka::screens::maps::maps_widget.dart::MapsWidget"
+
+class "transport_sterlitamaka::screens::maps::maps_widget.dart::_MapsWidgetState" {
+  +Position? currentPosition
+  -Symbol? _selectedSymbol
+  +String? schemeId
+  -MapboxMapController _controller
+  +List<Track> tracks
+  +List<TrackSymbol> trackSymbols
+  +List<TrackSymbolOptions> tracksSymbolsOptions
+  +List<Station> stations
+  +List<Route> routes
+  +Line? schemeLine
+  -MinMaxZoomPreference _minMaxZoomPreference
+  -Point<int> _attributionRightBottom
+  -Point<int> _logoRightTop
+  +void initState()
+  -Future<void> _determinePosition()
+  -Future<void> _onMapCreated()
+  +void checkForUpdateTrack()
+  +void updateTrackSymbol()
+  -Future<void> _onStyleLoaded()
+  -void _onSymbolTapped()
+  +Future<void> addImageFromAsset()
+  -Future<void> _showScheme()
+  -Future<void> _hideScheme()
+  -StationSymbolOptions _getStationSymbolOptions()
+  -TrackSymbolOptions _getTrackSymbolOptions()
+  -Future<void> _addStationSymbols()
+  -Future<void> _addInitialTrackSymbols()
+  -void _hideTrackSymbols()
+  -void _setUserLocation()
+  +Widget build()
+}
+
+"transport_sterlitamaka::screens::maps::maps_widget.dart::_MapsWidgetState" o-- "geolocator_platform_interface::src::models::position.dart::Position"
+"transport_sterlitamaka::screens::maps::maps_widget.dart::_MapsWidgetState" o-- "mapbox_gl_platform_interface::mapbox_gl_platform_interface.dart::Symbol"
+"transport_sterlitamaka::screens::maps::maps_widget.dart::_MapsWidgetState" o-- "mapbox_gl::mapbox_gl.dart::MapboxMapController"
+"transport_sterlitamaka::screens::maps::maps_widget.dart::_MapsWidgetState" o-- "mapbox_gl_platform_interface::mapbox_gl_platform_interface.dart::Line"
+"transport_sterlitamaka::screens::maps::maps_widget.dart::_MapsWidgetState" o-- "mapbox_gl_platform_interface::mapbox_gl_platform_interface.dart::MinMaxZoomPreference"
+"transport_sterlitamaka::screens::maps::maps_widget.dart::_MapsWidgetState" o-- "dart::math::Point<int>"
+"flutter::src::widgets::framework.dart::State" <|-- "transport_sterlitamaka::screens::maps::maps_widget.dart::_MapsWidgetState"
+"flutter::src::widgets::ticker_provider.dart::TickerProviderStateMixin" <|-- "transport_sterlitamaka::screens::maps::maps_widget.dart::_MapsWidgetState"
+
+class "transport_sterlitamaka::screens::maps::widgets::track_bottom_sheet.dart::TrackBottomSheet" {
+  +TrackSymbol trSymbol
+  +List<Route> routes
+  +State<TrackBottomSheet> createState()
+}
+
+"transport_sterlitamaka::screens::maps::widgets::track_bottom_sheet.dart::TrackBottomSheet" o-- "transport_sterlitamaka::models::track_symbol.dart::TrackSymbol"
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "transport_sterlitamaka::screens::maps::widgets::track_bottom_sheet.dart::TrackBottomSheet"
+
+class "transport_sterlitamaka::screens::maps::widgets::track_bottom_sheet.dart::_TrackBottomSheetState" {
+  +bool isFavorite
+  +Route currentRoute
+  +List<ListTile> tiles
+  +void initState()
+  +Future<List<Widget>> getStations()
+  -void _onTap()
+  +Widget build()
+}
+
+"transport_sterlitamaka::screens::maps::widgets::track_bottom_sheet.dart::_TrackBottomSheetState" o-- "transport_sterlitamaka::models::route.dart::Route"
+"flutter::src::widgets::framework.dart::State" <|-- "transport_sterlitamaka::screens::maps::widgets::track_bottom_sheet.dart::_TrackBottomSheetState"
+
+class "transport_sterlitamaka::screens::maps::widgets::station_bottom_sheet.dart::StationBottomSheet" {
+  +StationSymbol stSymbol
+  +List<Station> stations
+  +State<StationBottomSheet> createState()
+}
+
+"transport_sterlitamaka::screens::maps::widgets::station_bottom_sheet.dart::StationBottomSheet" o-- "transport_sterlitamaka::models::station_symbol.dart::StationSymbol"
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "transport_sterlitamaka::screens::maps::widgets::station_bottom_sheet.dart::StationBottomSheet"
+
+class "transport_sterlitamaka::screens::maps::widgets::station_bottom_sheet.dart::_StationBottomSheetState" {
+  +bool isFavorite
+  -void _onTap()
+  +Future<List<RouteButtonWidget>> getRoutes()
+  +void initState()
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "transport_sterlitamaka::screens::maps::widgets::station_bottom_sheet.dart::_StationBottomSheetState"
+
+class "transport_sterlitamaka::screens::stations::stations_widget.dart::StationsWidget" {
+  +State<StationsWidget> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "transport_sterlitamaka::screens::stations::stations_widget.dart::StationsWidget"
+
+class "transport_sterlitamaka::screens::stations::stations_widget.dart::_StationsWidgetState" {
+  -TextEditingController _searchController
+  +Widget build()
+}
+
+"transport_sterlitamaka::screens::stations::stations_widget.dart::_StationsWidgetState" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"flutter::src::widgets::framework.dart::State" <|-- "transport_sterlitamaka::screens::stations::stations_widget.dart::_StationsWidgetState"
+
+class "transport_sterlitamaka::screens::stations::widgets::station_cell_widget.dart::StationCellWidget" {
+  +Station station
+  +bool isBottomSheet
+  +Widget leading
+  +Widget build()
+}
+
+"transport_sterlitamaka::screens::stations::widgets::station_cell_widget.dart::StationCellWidget" o-- "transport_sterlitamaka::models::station.dart::Station"
+"transport_sterlitamaka::screens::stations::widgets::station_cell_widget.dart::StationCellWidget" o-- "flutter::src::widgets::framework.dart::Widget"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "transport_sterlitamaka::screens::stations::widgets::station_cell_widget.dart::StationCellWidget"
+
+class "transport_sterlitamaka::screens::favorites::favorites_widget.dart::FavoritesWidget" {
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "transport_sterlitamaka::screens::favorites::favorites_widget.dart::FavoritesWidget"
+
+class "transport_sterlitamaka::screens::transport_card::new_transport_card_widget.dart::NewTransportCardWidget" {
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "transport_sterlitamaka::screens::transport_card::new_transport_card_widget.dart::NewTransportCardWidget"
+
+class "transport_sterlitamaka::screens::transport_card::existing_transport_card.dart::ExistingTransportCardWidget" {
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "transport_sterlitamaka::screens::transport_card::existing_transport_card.dart::ExistingTransportCardWidget"
+
+class "transport_sterlitamaka::screens::transport_card::existing_transport_card.dart::UpperCaseTextFormatter" {
+  +TextEditingValue formatEditUpdate()
+}
+
+"flutter::src::services::text_formatter.dart::TextInputFormatter" <|-- "transport_sterlitamaka::screens::transport_card::existing_transport_card.dart::UpperCaseTextFormatter"
+
+class "transport_sterlitamaka::screens::transport_card::add_transport_card.dart::AddTransportCardWidget" {
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "transport_sterlitamaka::screens::transport_card::add_transport_card.dart::AddTransportCardWidget"
+
+class "transport_sterlitamaka::screens::transport_card::transport_card_widget.dart::TransportCardWidget" {
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "transport_sterlitamaka::screens::transport_card::transport_card_widget.dart::TransportCardWidget"
+
+class "transport_sterlitamaka::screens::transport_card::widgets::transactions_cell_widget.dart::TransactionsCellWidget" {
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "transport_sterlitamaka::screens::transport_card::widgets::transactions_cell_widget.dart::TransactionsCellWidget"
+
+class "transport_sterlitamaka::screens::routes::routes_widget.dart::RoutesWidget" {
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "transport_sterlitamaka::screens::routes::routes_widget.dart::RoutesWidget"
+
+class "transport_sterlitamaka::screens::routes::widgets::route_button_widget.dart::RouteButtonWidget" {
+  +Route route
+  +Widget build()
+}
+
+"transport_sterlitamaka::screens::routes::widgets::route_button_widget.dart::RouteButtonWidget" o-- "transport_sterlitamaka::models::route.dart::Route"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "transport_sterlitamaka::screens::routes::widgets::route_button_widget.dart::RouteButtonWidget"
+
+class "transport_sterlitamaka::main.dart::MyApp" {
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "transport_sterlitamaka::main.dart::MyApp"
+
+class "transport_sterlitamaka::theme::map_style.dart::MapStyle" {
+  {static} +String color
+  {static} +String monochrome
+}
+
+class "transport_sterlitamaka::theme::user_colors.dart::UserColors" {
+  {static} +Color blue
+  {static} +Color red
+  {static} +Color green
+}
+
+"transport_sterlitamaka::theme::user_colors.dart::UserColors" o-- "dart::ui::Color"
+
+class "transport_sterlitamaka::theme::app_theme.dart::AppTheme" {
+  +ThemeData light
+}
+
+"transport_sterlitamaka::theme::app_theme.dart::AppTheme" o-- "flutter::src::material::theme_data.dart::ThemeData"
+
+class "transport_sterlitamaka::secrets.dart::Secrets" {
+  {static} +String ACCESS_TOKEN
+  {static} +String AUTH_SECRET
+  {static} +String API_IP
+  {static} +String API_PORT
+  {static} +String REST_ENDPOINT
+  {static} +String WS_ENDPOINT
+}
+
+class "transport_sterlitamaka::main_bottom_bar_widget.dart::MainBottomBarWidget" {
+  +State<MainBottomBarWidget> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "transport_sterlitamaka::main_bottom_bar_widget.dart::MainBottomBarWidget"
+
+class "transport_sterlitamaka::main_bottom_bar_widget.dart::_MainBottomBarWidgetState" {
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "transport_sterlitamaka::main_bottom_bar_widget.dart::_MainBottomBarWidgetState"
+
+
+@enduml
