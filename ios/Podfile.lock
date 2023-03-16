@@ -1,0 +1,56 @@
+PODS:
+  - Flutter (1.0.0)
+  - FMDB (2.7.5):
+    - FMDB/standard (= 2.7.5)
+  - FMDB/standard (2.7.5)
+  - geolocator_apple (1.2.0):
+    - Flutter
+  - Mapbox-iOS-SDK (6.4.1):
+    - MapboxMobileEvents (~> 0.10.12)
+  - mapbox_gl (0.0.1):
+    - Flutter
+    - Mapbox-iOS-SDK (~> 6.4.0)
+    - MapboxAnnotationExtension (~> 0.0.1-beta.1)
+  - MapboxAnnotationExtension (0.0.1-beta.2):
+    - Mapbox-iOS-SDK (~> 6.0)
+  - MapboxMobileEvents (0.10.14)
+  - sqflite (0.0.2):
+    - Flutter
+    - FMDB (>= 2.7.5)
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - geolocator_apple (from `.symlinks/plugins/geolocator_apple/ios`)
+  - mapbox_gl (from `.symlinks/plugins/mapbox_gl/ios`)
+  - sqflite (from `.symlinks/plugins/sqflite/ios`)
+
+SPEC REPOS:
+  trunk:
+    - FMDB
+    - Mapbox-iOS-SDK
+    - MapboxAnnotationExtension
+    - MapboxMobileEvents
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  geolocator_apple:
+    :path: ".symlinks/plugins/geolocator_apple/ios"
+  mapbox_gl:
+    :path: ".symlinks/plugins/mapbox_gl/ios"
+  sqflite:
+    :path: ".symlinks/plugins/sqflite/ios"
+
+SPEC CHECKSUMS:
+  Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
+  FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
+  geolocator_apple: cc556e6844d508c95df1e87e3ea6fa4e58c50401
+  Mapbox-iOS-SDK: f870f83cbdc7aa4a74afcee143aafb0dae390c82
+  mapbox_gl: 33c5ab6306cbfa72289bb3606d2cd2e8baee9ff0
+  MapboxAnnotationExtension: 4eee6c26349ef6d909f1a23a7eae2d0f7ca5fa7d
+  MapboxMobileEvents: 5a172cc9bbf8ac0e45ba86095cbee685ede248cc
+  sqflite: 6d358c025f5b867b29ed92fc697fd34924e11904
+
+PODFILE CHECKSUM: 1d2fa5cd8b969c4dea2488d2719415dedb82039b
+
+COCOAPODS: 1.11.3
